@@ -1,0 +1,10 @@
+(FUN) cleanup.R (type/x-r-syntax) 1118 bytes.
+(FUN) corefunctions.R (type/x-r-syntax) 44665 bytes.
+(FUN)_datatool.R (type/x-r-syntax) 896 bytes.
+(RCODE)_performance_to_promotion.R (type/x-r-syntax) 17403 bytes.
+(RCODE)_produce_citypanel_base.R (type/x-r-syntax) 22604 bytes.
+(RCODE)_produce_validation_data.R (type/x-r-syntax) 22596 bytes.
+(RCODE)_visualization.R (type/x-r-syntax) 6513 bytes.
+(WKSPACE) data_for_validation.RData (application/x-rlang-transport) 10957347 bytes.
+base1106.csv (text/comma-separated-values) 322073 bytes.
+citypanel_base.dta (application/x-stata-14) 3003547 bytes.

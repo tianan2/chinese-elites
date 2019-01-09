@@ -1,0 +1,35 @@
+---
+title: "Untitled"
+author: "Jaehwan Lim"
+date: "January 9, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(stringr)
+library(lubridate)
+
+elites <- read_excel("Untitled/CPED_V1.0/Full Data.xlsx") %>% 
+  select(- X__1)
+
+elites_full <- read_excel("CPED_V1.0/CPED_V1.0/Full Data copy.xlsx")
+```
+
+```{r}
+elites_full %>% 
+  group_by(姓名) %>% 
+  count() %>% 
+  ungroup() %>% 
+  summarize(av_steps = mean(n))
+
+summary(elites_full)
+
+```
+
+
