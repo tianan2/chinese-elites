@@ -18,7 +18,9 @@ library(lubridate)
 elites <- read_excel("Untitled/CPED_V1.0/Full Data.xlsx") %>% 
   select(- X__1)
 
-elites_full <- read_excel("CPED_V1.0/CPED_V1.0/Full Data copy.xlsx")
+elites_full <- read_excel("CPED_V1.0/CPED_V1.0/Full Data copy.xlsx") %>% 
+  mutate(`起始时间（YYYY-MM-DD）` = as.Date(`起始时间（YYYY-MM-DD）`)) %>% 
+  mutate(`终止时间（（YYYY-MM-DD））` = as.Date(`终止时间（（YYYY-MM-DD））`)) 
 ```
 
 ```{r}
@@ -28,8 +30,20 @@ elites_full %>%
   ungroup() %>% 
   summarize(av_steps = mean(n))
 
-summary(elites_full)
+elites_full %>% 
+  filter(`终止时间（（YYYY-MM-DD））` == "2015-07-01") %>% 
+  count(级别, sort = TRUE)
 
+
+elites_full %>%
+  mutate(`起始时间（YYYY-MM-DD）` = floor_date(`起始时间（YYYY-MM-DD）`, "year")) %>% 
+  filter(经历序号 == 1) %>%
+  filter(`起始时间（YYYY-MM-DD）` > "1950-01-01") %>% 
+  count(`起始时间（YYYY-MM-DD）`) %>% 
+  ggplot(aes(x = `起始时间（YYYY-MM-DD）`, y = n)) +
+  geom_point() +
+  geom_line()
+  
 ```
 
 
