@@ -24,15 +24,24 @@ elites_full <- read_excel("CPED_V1.0/CPED_V1.0/Full Data copy.xlsx") %>%
 ```
 
 ```{r}
+## How many cadres? 3923
 elites_full %>% 
-  group_by(姓名) %>% 
-  count() %>% 
-  ungroup() %>% 
-  summarize(av_steps = mean(n))
+  distinct(姓名, .keep_all = TRUE) 
 
+## The final level at cadres stand at the point of 2015-07-01
 elites_full %>% 
   filter(`终止时间（（YYYY-MM-DD））` == "2015-07-01") %>% 
   count(级别, sort = TRUE)
+
+## Cadres who reached at the national (full/alternate) level
+elites_full %>% 
+  filter(级别 %in% c("正国", "副国"))
+
+elites_full %>% 
+  count(`终止时间（（YYYY-MM-DD））`) %>% 
+  filter(`终止时间（（YYYY-MM-DD））` < "2020-01-01", `终止时间（（YYYY-MM-DD））` > "2010-01-01") %>% 
+  ggplot(aes(x = `终止时间（（YYYY-MM-DD））`, y = n)) + 
+  geom_point()
 
 
 elites_full %>%
