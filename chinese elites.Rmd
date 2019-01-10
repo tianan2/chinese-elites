@@ -43,7 +43,7 @@ elites_full %>%
   ggplot(aes(x = `终止时间（（YYYY-MM-DD））`, y = n)) + 
   geom_point()
 
-
+## When the elites started their work? 
 elites_full %>%
   mutate(`起始时间（YYYY-MM-DD）` = floor_date(`起始时间（YYYY-MM-DD）`, "year")) %>% 
   filter(经历序号 == 1) %>%
@@ -51,7 +51,10 @@ elites_full %>%
   count(`起始时间（YYYY-MM-DD）`) %>% 
   ggplot(aes(x = `起始时间（YYYY-MM-DD）`, y = n)) +
   geom_point() +
-  geom_line()
+  geom_line() + 
+  labs(title = "Distribution of the starting year", 
+       x = "Year", 
+       y = "# of cadres")
   
 ```
 
