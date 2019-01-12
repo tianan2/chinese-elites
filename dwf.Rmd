@@ -1,0 +1,29 @@
+---
+title: "Untitled"
+author: "Jaehwan Lim"
+date: "January 12, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(readxl)
+
+
+gwf <- read_excel("gwf-data/GWF Autocratic Regimes.xlsx")
+
+```
+
+```{r}
+library(lubridate)
+
+gwf %>% count(gwf_country)
+
+
+```
+
+
