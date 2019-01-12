@@ -1,0 +1,19 @@
+---
+title: "Untitled"
+author: "Jaehwan Lim"
+date: "1/11/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(haven)
+
+archigo <- read_dta("Archigos_4.1_stata14.dta")
+
+```
+
