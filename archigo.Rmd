@@ -3,6 +3,8 @@ title: "Untitled"
 author: "Jaehwan Lim"
 date: "1/11/2019"
 output: html_document
+editor_options: 
+  chunk_output_type: inline
 ---
 
 ```{r setup, include=FALSE}
@@ -14,6 +16,44 @@ library(tidyverse)
 library(haven)
 
 archigo <- read_dta("Archigos_4.1_stata14.dta")
+
+theme_set(theme_light())
+
+```
+
+```{r}
+library(lubridate)
+
+## Exit pattern for each decade since 1945
+archigo %>% 
+  filter(startdate >= "1945-01-01") %>% 
+  group_by(year = 10 * (year(startdate) %/% 10)) %>%
+  count(exit) %>% 
+  ggplot(aes(x = year, y = n, color = exit)) + 
+  geom_line() +
+  geom_point()
+
+## How the chinese leaders are coded?
+archigo %>% 
+  filter(idacr == "CHN", startdate >= "1945-01-01")
+  
+## focusing on the leaders who came to power after 1945 and add years variable
+after_1950 <- archigo %>% 
+  filter(startdate >= "1950-01-01") %>% 
+  mutate(office_years = year(enddate) - year(startdate)) 
+
+after_1950 %>% 
+  group_by(year = 10 * (year(startdate) %/% 10), 
+           exit) %>% 
+  count() %>%
+  ungroup() %>%
+  group_by(year) %>% 
+  mutate(prop = n / sum(n)) %>% 
+  ggplot(aes(year, prop, fill = exit)) +
+  geom_col(position = "dodge")
+
+  
+
 
 ```
 
