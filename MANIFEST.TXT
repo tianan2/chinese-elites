@@ -1,0 +1,2 @@
+leaders_datapaper_replication_final_9_10_15.dta (application/x-stata-13) 657014 bytes.
+leaders_datapaper_replication_public_final.do (application/x-stata-syntax) 10829 bytes.
