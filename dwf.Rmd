@@ -12,9 +12,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 library(readxl)
+library(haven)
 
 
 gwf <- read_excel("gwf-data/GWF Autocratic Regimes.xlsx")
+gwf_all <- read_dta("gwf-data/GWF_AllPoliticalRegimes.dta")
 
 ```
 
