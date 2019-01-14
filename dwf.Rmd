@@ -18,6 +18,9 @@ library(haven)
 gwf <- read_excel("gwf-data/GWF Autocratic Regimes.xlsx")
 gwf_all <- read_dta("gwf-data/GWF_AllPoliticalRegimes.dta")
 
+gwf_all_autocracy <- gwf_all %>% 
+  filter(gwf_nonautocracy != "democracy")
+
 theme_set(theme_light())
 
 ```
@@ -29,26 +32,58 @@ library(lubridate)
 
 gwf_all %>% 
   filter(gwf_nonautocracy != "democracy") %>%
-  filter(gwf_regimetype != "oligarchy", 
-         gwf_regimetype != "NA") %>% 
+  filter(gwf_regimetype != "NA") %>% 
   mutate(gwf_regimetype = fct_recode(gwf_regimetype, military = "indirect military", 
                                    military = "military-personal", 
                                    party = "party-military", 
                                    party = "party-military-personal", 
-                                   party = "party-personal")) %>% 
+                                   party = "party-personal", 
+                                   party = "oligarchy")) %>% 
   group_by(year) %>%
   count(gwf_regimetype) %>% 
-  ggplot(aes(year, n, color = gwf_regimetype)) +
-  geom_line() + 
-  scale_x_continuous(breaks = c(1950, 1960, 1970, 1980, 1990, 2000, 2010)) +
+  ggplot(aes(year, n)) +
+  geom_line(aes(linetype = gwf_regimetype)) + 
+  scale_x_continuous(breaks = c(1950, 1960, 1970, 1980, 1990, 2000)) +
   labs(title = "Number of authoritarian regimes in power by type, 1946-2010", 
        x = "Year", 
        y = "Frequency") 
   
+```
+## Are Today's authoritarian regimes more durable than those of the past?
+
+```{r}
+gwf_all_autocracy %>% 
+  group_by(year) %>% 
+  summarize(median_years = median(gwf_duration)) %>% 
+  ggplot(aes(year, median_years)) +
+  geom_line() +
+  expand_limits(y = 0) + 
+  scale_x_continuous(limits = c(1951, 2010))
+  
+```
+
+## How authoritarian regimes fall?
+
+```{r}
+gwf %>% 
+  mutate(gwf_howend2 = recode(gwf_howend, `1` = "Rule change", 
+                              `2` = "Election", 
+                              `3` = "Election", 
+                              `4` = "Uprising", 
+                              `5` = "Coup", 
+                              `6` = "Insurgency", 
+                              `7` = "Foreign", 
+                              `9` = "End of state")) %>%
+  filter(!is.na(gwf_howend2)) %>%
+  group_by(gwf_endyr) %>% 
+  count(gwf_howend2) %>% 
+  ungroup() %>% 
+  group_by(gwf_howend2) %>% 
+  mutate(prop = n / sum(n))
+  
   
 
-
-
+  
 ```
 
 
