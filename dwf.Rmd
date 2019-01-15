@@ -101,7 +101,11 @@ gwf %>%
   mutate(gwf_howend2 = fct_reorder(gwf_howend2, n.x)) %>% 
   ggplot(aes(gwf_howend2, frequency, fill = prop)) +
   geom_col(position = "dodge") + 
-  scale_y_continuous(labels = scales::percent_format()) 
+  scale_y_continuous(labels = scales::percent_format()) +
+  coord_flip() + 
+  labs(title = "How authoritarian regimes fell", 
+       x = "Failure type", 
+       y = "Percent")
 
 ```
 
