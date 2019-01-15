@@ -65,25 +65,44 @@ gwf_all_autocracy %>%
 ## How authoritarian regimes fall?
 
 ```{r}
-gwf %>% 
-  mutate(gwf_howend2 = recode(gwf_howend, `1` = "Rule change", 
+gwf_post <- gwf %>% 
+  mutate(gwf_howend2 = recode(gwf_howend, `0` = "NA", 
+                              `1` = "Rule change", 
                               `2` = "Election", 
                               `3` = "Election", 
                               `4` = "Uprising", 
                               `5` = "Coup", 
                               `6` = "Insurgency", 
                               `7` = "Foreign", 
+                              `8` = "NA",
                               `9` = "End of state")) %>%
-  filter(!is.na(gwf_howend2)) %>%
-  group_by(gwf_endyr) %>% 
+  filter(gwf_howend2 != "NA") %>% 
+  filter(gwf_endyr >= 1990) %>% 
   count(gwf_howend2) %>% 
-  ungroup() %>% 
-  group_by(gwf_howend2) %>% 
-  mutate(prop = n / sum(n))
-  
-  
+  mutate(prop = n / sum(n)) %>% 
+  mutate(gwf_howend2 = fct_reorder(gwf_howend2, prop))
 
-  
+gwf %>% 
+  mutate(gwf_howend2 = recode(gwf_howend, `0` = "NA", 
+                              `1` = "Rule change", 
+                              `2` = "Election", 
+                              `3` = "Election", 
+                              `4` = "Uprising", 
+                              `5` = "Coup", 
+                              `6` = "Insurgency", 
+                              `7` = "Foreign", 
+                              `8` = "NA",
+                              `9` = "End of state")) %>%
+  filter(gwf_howend2 != "NA") %>%
+  count(gwf_howend2) %>% 
+  mutate(prop = n / sum(n)) %>% 
+  left_join(gwf_post, by = "gwf_howend2") %>% 
+  gather(prop, frequency, prop.x, prop.y) %>% 
+  mutate(gwf_howend2 = fct_reorder(gwf_howend2, n.x)) %>% 
+  ggplot(aes(gwf_howend2, frequency, fill = prop)) +
+  geom_col(position = "dodge") + 
+  scale_y_continuous(labels = scales::percent_format()) 
+
 ```
 
 
