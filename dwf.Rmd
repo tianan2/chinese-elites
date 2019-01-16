@@ -98,15 +98,24 @@ gwf %>%
   mutate(prop = n / sum(n)) %>% 
   left_join(gwf_post, by = "gwf_howend2") %>% 
   gather(prop, frequency, prop.x, prop.y) %>% 
-  mutate(gwf_howend2 = fct_reorder(gwf_howend2, n.x)) %>% 
+  mutate(gwf_howend2 = fct_relevel(gwf_howend2, "Coup", "Election", "Uprising", "Insurgency", "Rule change", "Foreign", "End of state")) %>% 
   ggplot(aes(gwf_howend2, frequency, fill = prop)) +
   geom_col(position = "dodge") + 
   scale_y_continuous(labels = scales::percent_format()) +
-  coord_flip() + 
   labs(title = "How authoritarian regimes fell", 
        x = "Failure type", 
-       y = "Percent")
+       y = "Percent") + 
+  scale_fill_discrete(name = "", 
+                      breaks = c("prop.x", "prop.y"), 
+                      labels = c("1946-2010", "Post-Cold war")) + 
+  scale_fill_grey()
 
+```
+
+```{r}
+gwf_all_autocracy %>%
+  
+  
 ```
 
 
