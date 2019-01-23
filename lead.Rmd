@@ -15,11 +15,44 @@ library(haven)
 
 leader_profile <- read_dta("leaders_datapaper_replication_final_9_10_15.dta")
 
+leader_article <- read_dta("S0020818314000046sup002.dta")
+
 ```
 
 ```{r}
 leader_profile %>% 
   count(dadwork, sort = T)
+
+leader_processed <- leader_profile %>% 
+  select(idacr, ccode, year, leadername, inyear, outyear, age, gender, married, onlychild, firstborn, leveledu, milservice, combat, rebel, miledu, medicine, economics, physhealth) %>% 
+  mutate(leveledu = recode(leveledu, `0` = 0, `1` = 0,  `2` = 1, `3` = 1)) 
+
+leader_processed %>% 
+  count(ccode, sort = T)
+
+```
+```{r}
+library(broom)
+
+leader_article_processed <- leader_article %>% 
+  select(leaderid, leadername, ccode, year, age, milservice, milnoncombat, combat, rebelwin, rebelloss, leveledu, teacher, journalism, law, engineering, careerpolitician, militarycareer, businesscareer, cwinit) %>% 
+  mutate(leveledu = recode(leveledu, `0` = 0, `1` = 0,  `2` = 1, `3` = 1)) %>% 
+  filter(!is.na(combat))
+
+glm(cwinit ~ milnoncombat + 
+      combat + 
+      rebelwin + 
+      rebelloss + 
+      leveledu + 
+      teacher + 
+      journalism + 
+      law + 
+      engineering + 
+      careerpolitician + 
+      businesscareer, 
+    data = leader_article_processed, 
+    family = binomial) %>% 
+  summary()
 
 
 ```
