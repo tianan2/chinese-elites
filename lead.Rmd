@@ -17,6 +17,8 @@ leader_profile <- read_dta("leaders_datapaper_replication_final_9_10_15.dta")
 
 leader_article <- read_dta("S0020818314000046sup002.dta")
 
+theme_set(theme_light())
+
 ```
 
 ```{r}
@@ -31,6 +33,7 @@ leader_processed %>%
   count(ccode, sort = T)
 
 ```
+
 ```{r}
 library(broom)
 
@@ -39,20 +42,35 @@ leader_article_processed <- leader_article %>%
   mutate(leveledu = recode(leveledu, `0` = 0, `1` = 0,  `2` = 1, `3` = 1)) %>% 
   filter(!is.na(combat))
 
-glm(cwinit ~ milnoncombat + 
+mod <- glm(cwinit ~ milnoncombat + 
       combat + 
       rebelwin + 
       rebelloss + 
       leveledu + 
-      teacher + 
       journalism + 
       law + 
       engineering + 
       careerpolitician + 
       businesscareer, 
     data = leader_article_processed, 
-    family = binomial) %>% 
-  summary()
+    family = binomial) 
+
+estimate_leaders <- tidy(mod)
+confint_leaders <- confint_tidy(mod)
+
+estimate_confint <- bind_cols(estimate_leaders, confint_leaders)
+
+estimate_confint_subset <- estimate_confint[2:12, ] 
+
+estimate_confint_subset %>% 
+  mutate(term = fct_reorder(term, estimate)) %>% 
+  ggplot(aes(term, estimate)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high, width = 0.2)) +
+  coord_flip()
+  
+  
+
 
 
 ```
