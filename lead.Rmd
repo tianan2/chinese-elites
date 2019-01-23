@@ -3,6 +3,8 @@ title: "Untitled"
 author: "Jaehwan Lim"
 date: "January 12, 2019"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -44,16 +46,16 @@ leader_article_processed <- leader_article %>%
   filter(!is.na(combat))
 
 mod <- glm(cwinit ~ milnoncombat + 
-      combat + 
-      rebel +
-      age +
-      leveledu + 
-      journalism + 
-      law + 
-      engineering + 
-      labor +
-      careerpolitician + 
-      businesscareer, 
+             combat + 
+             rebel +
+             age +
+             leveledu + 
+             law + 
+             engineering + 
+             labor +
+             businesscareer +
+             militarycareer + 
+             careerpolitician, 
     data = leader_article_processed, 
     family = binomial) 
 
@@ -70,9 +72,10 @@ estimate_confint_subset %>%
   geom_point() +
   geom_errorbar(aes(ymin = conf.low, ymax = conf.high, width = 0.2)) +
   coord_flip() +
-  labs(title = "Figure 1. Statistical model of leader background variables", 
+  labs(title = "図1. リーダーの経歴と対外武力行使", 
        x = "", 
-       y = "Logistics Model Coefficients")
+       y = "推定値（ロジスティックモデル）") +
+  theme_bw(base_family = "HiraKakuProN-W6")
 
 
 ```
