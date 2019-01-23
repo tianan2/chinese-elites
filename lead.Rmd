@@ -67,6 +67,17 @@ estimate_confint <- bind_cols(estimate_leaders, confint_leaders)
 estimate_confint_subset <- estimate_confint[2:12, ] 
 
 estimate_confint_subset %>% 
+  mutate(term = recode(term, milnoncombat = "兵役（戦闘経験なし）", 
+                       combat = "兵役（戦闘経験あり）", 
+                       engineering = "職業（エンジニア－）", 
+                       rebel = "反乱（参加あり）", 
+                       age = "年齢（50歳以上）", 
+                       leveledu = "教育（大学以上）",
+                       labor = "職業（労働）", 
+                       careerpolitician = "職業（政治家）", 
+                       law = "職業（法曹）", 
+                       businesscareer = "職業（実業家）", 
+                       militarycareer = "職業（軍人）")) %>% 
   mutate(term = fct_reorder(term, estimate)) %>% 
   ggplot(aes(term, estimate)) +
   geom_point() +
