@@ -86,7 +86,7 @@ estimate_confint_subset %>%
   geom_hline(yintercept = 0, color = "black") +
   labs(title = "図1. リーダーの経歴と対外武力行使", 
        x = "", 
-       y = "相関係数と信頼区間（数値が高いほど武力行使の可能性が高まる）",
+       y = "相関係数と信頼区間（数値が高いほど武力行使の確率が高まる）",
        caption = "Data from Horowitz and Stam 2014") +
   theme_bw(base_family = "HiraKakuProN-W6")
 
