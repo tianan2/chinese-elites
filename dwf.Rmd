@@ -42,7 +42,7 @@ gwf_all %>%
   group_by(year) %>%
   count(gwf_regimetype) %>% 
   ggplot(aes(year, n)) +
-  geom_line(aes(linetype = gwf_regimetype)) + 
+  geom_line(aes(color = gwf_regimetype)) + 
   scale_x_continuous(breaks = c(1950, 1960, 1970, 1980, 1990, 2000)) +
   labs(title = "Number of authoritarian regimes in power by type, 1946-2010", 
        x = "Year", 
@@ -108,8 +108,7 @@ gwf %>%
        y = "Percent") + 
   scale_fill_discrete(name = "", 
                       breaks = c("prop.x", "prop.y"), 
-                      labels = c("1946-2010", "Post-Cold war")) + 
-  scale_fill_grey()
+                      labels = c("1946-2010", "Post-Cold war")) 
 
 ```
 
