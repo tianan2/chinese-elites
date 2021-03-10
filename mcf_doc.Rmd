@@ -1,0 +1,389 @@
+---
+title: "Untitled"
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(lubridate)
+library(scales)
+library(readxl)
+theme_set(theme_light())
+
+# read and clean data
+mcf_docs_raw <- read_excel("MCF_docs.xlsx") %>% 
+  mutate(date = str_remove(date, "（通過）")) %>% 
+  mutate(date = ymd(date)) %>% 
+  mutate(date_year = year(date)) %>%
+  mutate(entity = str_trim(entity)) %>% 
+  mutate(entity_rank = as.character(entity_rank))
+    
+View(mcf_docs_raw)
+
+mcf_docs_raw %>% 
+  filter(entity == "中央军民融合发展委员会") %>% 
+  filter(str_detect(content, "批准"))
+  
+```
+
+```{r}
+mcf_docs_raw %>% 
+  distinct(index, .keep_all = T) %>% 
+  filter(date_year < 2021) %>% 
+  count(date_year) %>% 
+  ggplot(aes(date_year, n)) +
+  geom_line(size = 1) + 
+  # geom_vline(xintercept = 2017) +
+  scale_x_continuous(breaks = seq(2013, 2020, 1)) +
+  scale_y_continuous(breaks = seq(0, 40, 5)) +
+  labs(title = "Figure 1. Number of Policy Documents relating to MCF over time (2013-2020)", 
+       x = " ", 
+       y = " ", 
+       caption = "Data Source: MCF documents dataset ver.1") +
+  theme_classic() +
+  theme(plot.title = element_text(face = "bold"))
+
+mcf_docs_raw %>% 
+  distinct(index, .keep_all = T) %>% 
+  filter(date_year < 2021) %>% 
+  count(date_year) %>% 
+  ggplot(aes(date_year, n)) +
+  geom_line(size = 1) + 
+  # geom_vline(xintercept = 2017) +
+  scale_x_continuous(breaks = seq(2013, 2020, 1)) +
+  scale_y_continuous(breaks = seq(0, 40, 5)) +
+  labs(title = "図1. 軍民融合関連政策文書の各年度集計 (2013-2020)", 
+       x = " ", 
+       y = " ", 
+       caption = "Data Source: MCF documents dataset ver.1") +
+  theme_bw(base_family = "HiraKakuProN-W6")
+```
+
+```{r}
+mcf_docs_raw %>% 
+  filter(str_detect(title, "总装备部"))
+```
+
+```{r}
+# Plot MCF by document type 
+mcf_docs_raw %>% 
+  distinct(index, .keep_all = TRUE) %>% 
+  count(type, sort = T) %>% 
+  mutate(type = fct_reorder(type, n)) %>% 
+  ggplot(aes(n, type)) +
+  geom_col() +
+  labs(title = "Figure 5. MCF policy documents by type (2013-2020)", 
+       y = " ",
+       x = "Number of documents", 
+       fill = " ", 
+       caption = "Data Source: MCF Documents Dataset Ver. 1") +
+  theme_classic() +
+  theme(axis.text.y = element_text(family = "Songti TC"), 
+        plot.title = element_text(face = "bold")) 
+  # theme_bw(base_family = "Songti TC") 
+```
+  
+```{r}
+# Which level entity issues which type of documents?
+
+mcf_docs_raw %>% 
+  count(type, entity_rank) %>% 
+  mutate(entity_rank = fct_recode(entity_rank, 
+                                  "core leaders" = "1", 
+                                  "staff & leadership groups" = "2", 
+                                  "commissions & super-ministries" = "3", 
+                                  "line ministries" = "4", 
+                                  "ministrerial bureaus" = "5")) %>% 
+  mutate(type = fct_reorder(type, n, sum)) %>% 
+  ggplot(aes(n, type, fill = entity_rank)) +
+  geom_col() +
+  labs(title = "Figure 5-1. MCF policy documents by type (2013-2020)", 
+       y = " ",
+       x = "Number of documents", 
+       fill = " ", 
+       caption = "Data Source: MCF Documents Dataset Ver. 1") +
+  scale_fill_viridis(discrete = TRUE, option = "B") +
+  theme_classic() +
+  theme(axis.text.y = element_text(family = "Songti TC"), 
+        plot.title = element_text(face = "bold"), 
+        legend.position = "bottom")
+  # theme_bw(base_family = "Songti TC") 
+  
+```
+
+```{r}
+# Plot MCF by type over time
+mcf_docs_raw %>% 
+  distinct(index, .keep_all = T) %>% 
+  mutate(type = fct_lump(type, 6)) %>%
+  filter(date_year < 2021) %>% 
+  count(date_year, type) %>% 
+  ggplot(aes(date_year, n, fill = type)) +
+  geom_col() + 
+  scale_x_continuous(breaks = seq(2013, 2020, 1)) +
+  scale_fill_viridis(discrete = TRUE, option = "B") +
+  labs(title = "Figure 6. MCF policy documents by type over time", 
+       x = " ",
+       y = "Number of documents", 
+       fill = " ") +
+  theme_classic() +
+  theme(legend.text = element_text(family = "Songti TC"),
+        plot.title = element_text(face = "bold")) 
+```
+
+```{r}
+# Plot MCF documents by entity
+mcf_docs_raw %>% 
+  count(entity, sort = T) %>% 
+  filter(n > 1) %>% 
+  mutate(entity = fct_reorder(entity, n)) %>% 
+  ggplot(aes(n, entity)) +
+  geom_col() +
+  labs(title = "Figure 2. MCF policy documents by entity of issuance", 
+       y = " ",
+       x = "Number of documents", 
+       fill = " ", 
+       caption = "Data Source: MCF Documents Dataset Ver.1") +
+  theme_classic() +
+  theme(axis.text.y = element_text(family = "Songti TC"), 
+        plot.title = element_text(face = "bold"))
+```
+
+```{r}
+library(viridis)
+
+# Plot MCF documents by entity over time
+mcf_docs_raw %>% 
+  distinct(index, .keep_all = T) %>% 
+  mutate(entity = fct_lump(entity, 6),
+         entity = fct_relevel(entity, 
+                              "中央军民融合发展委员会", 
+                              "国务院", 
+                              "财政部", 
+                              "工业和信息化部", 
+                              "国防科技工业局")) %>%
+  filter(date_year < 2021) %>% 
+  count(date_year, entity) %>% 
+  ggplot(aes(date_year, n, fill = entity)) +
+  geom_col() + 
+  scale_x_continuous(breaks = seq(2013, 2020, 1)) +
+  labs(title = "Figure 3. MCF policy documents by issuing entity over time (2013-2020)", 
+       x = " ",
+       y = "Number of documents", 
+       fill = " ", 
+       caption = "Data Source: MCF Documents Dataset Ver.1") +
+  scale_fill_viridis(discrete = TRUE, option = "B") +
+  theme_classic() +
+  theme(legend.text = element_text(family = "Songti TC"),
+        plot.title = element_text(face = "bold")) 
+```
+
+
+```{r}
+# English name
+mcf_docs_raw %>% 
+  mutate(entity = fct_recode(entity, "SASTIND" = "国防科技工业局", 
+                             "MIIT" = "工业和信息化部", 
+                             "NDRC" = "国家发展和改革委", 
+                             "MSC" = "科技部", 
+                             "CCMCFD" = "中央军民融合发展委员会", 
+                             "MOF" = "财政部", 
+                             "CMCEDD" = "中央军委装备发展部", 
+                             "SC" = "国务院", 
+                             "CMC" = "中央军委", 
+                             "CNIPA" = "国家知识产权局", 
+                             "GAD" = "总装备部", 
+                             "CC" = "中共中央", 
+                             "MOE" = "教育部", 
+                             "CSRC" = "中国证券监督管理委", 
+                             "CMCSTC" = "中央军委科技委", 
+                             "SAC" = "国家标准化管理委员会")) %>% 
+  count(entity, sort = T)
+```
+
+```{r}
+mcf_docs_raw %>% 
+  filter(str_detect(entity, "海洋局"))
+```
+
+```{r}
+library(widyr)
+
+correlations_filtered <- mcf_docs_raw %>% 
+  add_count(entity, name = "entity_frequency") %>% 
+  filter(entity_frequency > 1) %>% 
+  pairwise_cor(entity, index, sort = T)
+
+correlations_1316 <- mcf_docs_raw %>% 
+  filter(date_year < 2017)  %>% 
+  pairwise_cor(entity, index, sort = T)
+
+correlations_filtered_1316 <- mcf_docs_raw %>% 
+  filter(date_year < 2017)  %>% 
+  add_count(entity, name = "entity_frequency") %>% 
+  filter(entity_frequency > 1) %>% 
+  pairwise_cor(entity, index, sort = T)
+
+correlations_1720 <- mcf_docs_raw %>% 
+  filter(date_year > 2016)  %>% 
+  pairwise_cor(entity, index, sort = T)
+
+correlations_filtered_1720 <- mcf_docs_raw %>% 
+  filter(date_year > 2016)  %>% 
+  add_count(entity, name = "entity_frequency") %>% 
+  filter(entity_frequency > 1) %>% 
+  pairwise_cor(entity, index, sort = T)
+
+# what tends to appear with SASTIND?
+correlations_filtered %>% 
+  filter(item1 == "国防科技工业局") %>% 
+  mutate(item2 = fct_reorder(item2, correlation)) %>% 
+  ggplot(aes(item2, correlation)) +
+  geom_col() +
+  coord_flip() +
+  labs(title = "Who tends to work with SASTIND?", 
+       subtitle = "Among the entities that issued at least 2 policy documents") +
+  theme_bw(base_family = "Songti TC")
+
+correlations_filtered %>% 
+  filter(item1 == "工业和信息化部") %>% 
+  mutate(item2 = fct_reorder(item2, correlation)) %>% 
+  ggplot(aes(item2, correlation)) +
+  geom_col() +
+  coord_flip() +
+  labs(title = "Who tends to work with MIIT?", 
+       subtitle = "Among the entities that issued at least 2 policy documents") +
+  theme_bw(base_family = "Songti TC")
+
+correlations_filtered %>% 
+  filter(item1 == "国家发展和改革委") %>% 
+  mutate(item2 = fct_reorder(item2, correlation)) %>% 
+  ggplot(aes(item2, correlation)) +
+  geom_col() +
+  coord_flip() +
+  labs(title = "Who tends to work with NDRC?", 
+       subtitle = "Among the entities that issued at least 2 policy documents") +
+  theme_bw(base_family = "Songti TC")
+```
+
+```{r}
+library(ggraph)
+library(igraph)
+library(gridExtra)
+library(cowplot)
+
+g <- correlations_filtered %>% 
+  graph_from_data_frame(directed = FALSE) 
+
+plot(g, layout = layout_with_fr, label.family = "Songti TC", vertex.size = 5)
+
+correlations %>% 
+  filter(correlation > 0) %>% 
+  graph_from_data_frame() %>% 
+  ggraph(layout = "with_kk") +
+  geom_edge_link(aes(alpha = correlation)) +
+  geom_node_point() +
+  geom_node_text(aes(label = name), family = "Songti TC", repel = TRUE) +
+  labs(title = "Figure 4. The structure of MCF policy network", 
+       caption = "Data Source: MCF Documents Dataset Ver.1") +
+  theme(plot.title = element_text(face = "bold"))
+
+correlations_filtered %>% 
+  filter(correlation > 0) %>% 
+  graph_from_data_frame() %>% 
+  ggraph(layout = "with_kk") +
+  geom_edge_link(aes(alpha = correlation)) +
+  geom_node_point() +
+  geom_node_text(aes(label = name), family = "Songti TC", repel = TRUE) +
+  labs(title = "Figure 4. The structure of MCF policy network", 
+       caption = "Data Source: MCF Documents Dataset Ver.1") +
+  theme(plot.title = element_text(face = "bold"))
+
+correlations_filtered_1316 %>% 
+  filter(correlation > 0) %>% 
+  graph_from_data_frame() %>% 
+  ggraph(layout = "with_kk") +
+  geom_edge_link(aes(alpha = correlation)) +
+  geom_node_point() +
+  geom_node_text(aes(label = name), family = "Songti TC", repel = TRUE) +
+  labs(title = "Figure 4. The structure of MCF policy network", 
+       caption = "Data Source: MCF Documents Dataset Ver.1") +
+  theme(plot.title = element_text(face = "bold"))
+
+correlations_filtered_1720 %>% 
+  filter(correlation > 0) %>% 
+  graph_from_data_frame() %>% 
+  ggraph(layout = "with_kk") +
+  geom_edge_link(aes(alpha = correlation)) +
+  geom_node_point() +
+  geom_node_text(aes(label = name), family = "Songti TC", repel = TRUE) +
+  labs(title = "Figure 4. The structure of MCF policy network", 
+       caption = "Data Source: MCF Documents Dataset Ver.1") +
+  theme(plot.title = element_text(face = "bold"))
+
+network_1316 <- correlations_1316 %>% 
+  filter(correlation > 0) %>% 
+  graph_from_data_frame() %>% 
+  ggraph(layout = "with_kk") +
+  geom_edge_link(aes(alpha = correlation)) +
+  geom_node_point() +
+  geom_node_text(aes(label = name), family = "Songti TC", repel = TRUE) +
+  labs(title = "2013-2016") +
+  theme(legend.position = "none") 
+
+network_1720 <- correlations_1720 %>% 
+  filter(correlation > 0) %>% 
+  graph_from_data_frame() %>% 
+  ggraph(layout = "with_kk") +
+  geom_edge_link(aes(alpha = correlation)) +
+  geom_node_point() +
+  geom_node_text(aes(label = name), family = "Songti TC", repel = TRUE) +
+  labs(title = "2017-2020") +
+  theme(legend.position = "none")
+
+title_gg <- ggdraw() + draw_label("Figure 4. The structure of MCF policy network (before and after 2017)", 
+             size = 12)
+
+gridded <- plot_grid(network_1316, network_1720, nrow = 1)
+
+plot_grid(title_gg, gridded, ncol = 1, rel_heights = c(0.05, 1))
+
+```
+
+```{r}
+mcf_docs_raw %>% 
+  distinct(index, .keep_all = T) %>% 
+  mutate(date_year = year(date), 
+         domain = fct_relevel(domain, 
+                              "基础", 
+                              "产业", 
+                              "科技",
+                              "教育资源")) %>% 
+  filter(date_year < 2021) %>% 
+  count(domain, date_year)  %>% 
+  filter(domain != "原则") %>% 
+  ggplot(aes(date_year, n, fill = domain)) +
+  geom_col() + 
+  scale_x_continuous(breaks = seq(2013, 2020, 1)) +
+  labs(title = "Figure 7. MCF policy documents by domain over time (2013-2020)", 
+       x = " ",
+       y = "Number of documents", 
+       fill = " ", 
+       caption = "Data Source: MCF Documents Dataset Ver.1") +
+  scale_fill_viridis(discrete = TRUE, option = "B") +
+  theme_classic() +
+  theme(legend.text = element_text(family = "Songti TC"),
+        plot.title = element_text(face = "bold")) 
+```
+
+```{r}
+mcf_docs_raw
+```
+
+
