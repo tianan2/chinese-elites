@@ -862,7 +862,7 @@ library(openxlsx)
 library(ggplot2)
 
 setwd("C:/Users/JCY/Dropbox/Ideology/replicate")
-data<-read.xlsx("Fig.xlsx",sheet=13)
+data<-read.xlsx("ji_and_jiang_2019/Fig.xlsx",sheet=13)
 
 theme_set(theme_bw() + theme(text=element_text(family="Times"),legend.position="bottom",legend.direction="horizontal",axis.title.x=element_text(face="bold",vjust=-.5),axis.title.y=element_text(face="bold",vjust=1),title=element_text(face="bold",size=16,vjust=1.5),axis.text.x=element_text(size=12),strip.text=element_text(size=13)))
 

@@ -13,16 +13,13 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(readxl)
 library(haven)
-
+theme_set(theme_light())
 
 gwf <- read_excel("gwf-data/GWF Autocratic Regimes.xlsx")
 gwf_all <- read_dta("gwf-data/GWF_AllPoliticalRegimes.dta")
 
 gwf_all_autocracy <- gwf_all %>% 
   filter(gwf_nonautocracy != "democracy")
-
-theme_set(theme_light())
-
 ```
 
 ## What type of authoritarian regime is most common today?
@@ -41,12 +38,14 @@ gwf_all %>%
                                    party = "oligarchy")) %>% 
   group_by(year) %>%
   count(gwf_regimetype) %>% 
+  mutate(gwf_regimetype = fct_reorder(gwf_regimetype, -n, sum)) %>% 
   ggplot(aes(year, n)) +
-  geom_line(aes(color = gwf_regimetype)) + 
+  geom_line(aes(color = gwf_regimetype), size = 1) + 
   scale_x_continuous(breaks = c(1950, 1960, 1970, 1980, 1990, 2000)) +
   labs(title = "Number of authoritarian regimes in power by type, 1946-2010", 
        x = "Year", 
-       y = "Frequency") 
+       y = "Frequency", 
+       color = "Regime Type") 
   
 ```
 
