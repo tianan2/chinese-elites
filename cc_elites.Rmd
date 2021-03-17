@@ -9,12 +9,14 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 library(tidyverse)
+library(scales)
 library(readxl)
 
-
-cc_elites <- read_excel("cc_data_jobrecoded07_12.xls")
+cc_data_all <- read_excel("CC+Data+Jobcoded+18CC+-+ACC.xls")
+cc_data_17 <- read_excel("CC+Data+Jobcoded+18CC+-+ACC.xls", sheet = 2)
+cc_data_18 <- read_excel("CC+Data+Jobcoded+18CC+-+ACC.xls", sheet = 3)
 
 ```
 
