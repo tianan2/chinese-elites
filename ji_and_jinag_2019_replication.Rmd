@@ -1,0 +1,19 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(haven)
+theme_set(theme_light())
+
+full_data <- read_dta("ji_and_jiang_2019/data.dta")
+read_dta("ji_and_jiang_2019/abs3_merge_party.dta")
+read_dta("ji_and_jiang_2019/abs4_merge_party.dta")
+```
+

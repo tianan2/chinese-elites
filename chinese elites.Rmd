@@ -3,30 +3,59 @@ title: "Untitled"
 author: "Jaehwan Lim"
 date: "January 9, 2019"
 output: html_document
+editor_options: 
+  chunk_output_type: inline
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+options(encoding = 'UTF-8')
 ```
 
-```{r}
+```{r warning=FALSE, message=FALSE}
 library(tidyverse)
 library(readxl)
 library(stringr)
 library(lubridate)
+library(scales)
 
-elites <- read_excel("Untitled/CPED_V1.0/Full Data.xlsx") %>% 
-  select(- X__1)
-
-elites_full <- read_excel("CPED_V1.0/CPED_V1.0/Full Data copy.xlsx") %>% 
+elites_full_raw <- read_excel("CPED_V1.0/CPED_V1.0/Full Data copy.xlsx") %>% 
   mutate(`起始时间（YYYY-MM-DD）` = as.Date(`起始时间（YYYY-MM-DD）`)) %>% 
   mutate(`终止时间（（YYYY-MM-DD））` = as.Date(`终止时间（（YYYY-MM-DD））`)) 
+
+elites_full <- elites_full_raw %>% rename("personal_index" = "用户编码",
+                       "name" = "姓名", 
+                       "career_order" = "经历序号", 
+                       "start_time" = "起始时间（YYYY-MM-DD）", 
+                       "end_time" = "终止时间（（YYYY-MM-DD））", 
+                       "national" = "是否全国性组织", 
+                       "dispatch_center" = "是否中央派出", 
+                       "level_1_index" = "一级关键词编码", 
+                       "level_1_keyword" = "地方一级关键词", 
+                       "level_2_index" = "二级关键词编码", 
+                       "level_2_keyword" = "地方二级关键词", 
+                       "level_rank" = "地区级别", 
+                       "code_memo_1" = "录入信息备注...13", 
+                       "level_3_keyword" = "地方三级关键词", 
+                       "work_category" = "基本大类别", 
+                       "work_1_index" = "职务一级关键词编码", 
+                       "work_1_keyword" = "职务一级关键词", 
+                       "code_memo_2" = "录入信息备注...18", 
+                       "work_2_keyword" = "职务二级关键词", 
+                       "work_3_keyword" = "职务三级关键词", 
+                       "work_spec" = "具体职务", 
+                       "rank" = "级别", 
+                       "work_title" = "标志位", 
+                       "education" = "学历", 
+                       "order_index" = "序号")
+
+elites_full %>% View()
 ```
 
 ```{r}
 ## How many cadres? 3923
 elites_full %>% 
-  distinct(姓名, .keep_all = TRUE) 
+  distinct(name, .keep_all = TRUE) 
 
 ## The final level at cadres stand at the point of 2015-07-01
 elites_full %>% 
@@ -57,5 +86,13 @@ elites_full %>%
        y = "# of cadres")
   
 ```
+
+```{r}
+elites_full %>% 
+  filter(work_category == "中央企业") %>% 
+  View()
+  count(work_category, sort = T)
+```
+
 
 

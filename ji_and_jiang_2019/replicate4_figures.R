@@ -785,12 +785,13 @@ library(tidyr)
 library(gridExtra)
 
 setwd("C:/Users/JCY/Dropbox/Ideology/replicate")
-data<-read.xlsx("Fig.xlsx",sheet=12)
+data<-read.xlsx("ji_and_jiang_2019/Fig.xlsx",sheet=12)
 
 data1<-subset(data,data$Value=="social")
 data2<-subset(data,data$Value=="political")
 data3<-subset(data,data$Value=="intl")
 data4<-subset(data,data$Value=="modern")
+
 p1<-ggplot(data1, aes(x=mean, y=reorder(country, mean),
                       color=as.factor(color),
                       shape=as.factor(color))) +
@@ -805,6 +806,7 @@ p1<-ggplot(data1, aes(x=mean, y=reorder(country, mean),
         legend.position="none",
         panel.grid.minor.x = element_blank(),
         panel.grid.major.y = element_line(colour="grey60", linetype="dashed"))
+
 p2<-ggplot(data2, aes(x=mean, y=reorder(country, mean),
                       color=as.factor(color),
                       shape=as.factor(color))) +
