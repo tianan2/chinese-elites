@@ -9,7 +9,6 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-options(encoding = 'UTF-8')
 ```
 
 ```{r warning=FALSE, message=FALSE}
@@ -50,21 +49,24 @@ elites_full <- elites_full_raw %>% rename("personal_index" = "用户编码",
                        "order_index" = "序号")
 
 elites_full %>% View()
+summary(elites_full)
 ```
 
 ```{r}
 ## How many cadres? 3923
 elites_full %>% 
-  distinct(name, .keep_all = TRUE) 
+  distinct(personal_index, .keep_all = TRUE) %>% 
+  View()
 
 ## The final level at cadres stand at the point of 2015-07-01
 elites_full %>% 
-  filter(`终止时间（（YYYY-MM-DD））` == "2015-07-01") %>% 
-  count(级别, sort = TRUE)
+  filter(end_time == "2015-07-01") %>% 
+  count(rank, sort = TRUE)
 
 ## Cadres who reached at the national (full/alternate) level
 elites_full %>% 
-  filter(级别 %in% c("正国", "副国"))
+  filter(rank %in% c("正国", "副国")) %>% 
+  distinct(personal_index, .keep_all = TRUE)
 
 elites_full %>% 
   count(`终止时间（（YYYY-MM-DD））`) %>% 
@@ -89,9 +91,7 @@ elites_full %>%
 
 ```{r}
 elites_full %>% 
-  filter(work_category == "中央企业") %>% 
-  View()
-  count(work_category, sort = T)
+  filter(work_category == "中央企业")
 ```
 
 
