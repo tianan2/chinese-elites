@@ -214,30 +214,26 @@ mcf_docs_raw %>%
 
 ```{r}
 library(widyr)
+library(reshape2)
 
-correlations_filtered <- mcf_docs_raw %>% 
-  add_count(entity, name = "entity_frequency") %>% 
-  filter(entity_frequency > 1) %>% 
+mcf_docs_filtered %>% 
+  acast(index ~ entity)
+```
+
+```{r}
+mcf_docs_filtered <- mcf_docs_raw %>% 
+  add_count(entity, name = "entity_frequency") %>%
+  filter(entity_frequency > 1)
+
+correlations_filtered <- mcf_docs_filtered %>% 
   pairwise_cor(entity, index, sort = T)
 
-correlations_1316 <- mcf_docs_raw %>% 
+correlations_filtered_1316 <- mcf_docs_filtered %>% 
   filter(date_year < 2017)  %>% 
   pairwise_cor(entity, index, sort = T)
 
-correlations_filtered_1316 <- mcf_docs_raw %>% 
-  filter(date_year < 2017)  %>% 
-  add_count(entity, name = "entity_frequency") %>% 
-  filter(entity_frequency > 1) %>% 
-  pairwise_cor(entity, index, sort = T)
-
-correlations_1720 <- mcf_docs_raw %>% 
+correlations_filtered_1720 <- mcf_docs_filtered %>% 
   filter(date_year > 2016)  %>% 
-  pairwise_cor(entity, index, sort = T)
-
-correlations_filtered_1720 <- mcf_docs_raw %>% 
-  filter(date_year > 2016)  %>% 
-  add_count(entity, name = "entity_frequency") %>% 
-  filter(entity_frequency > 1) %>% 
   pairwise_cor(entity, index, sort = T)
 
 # what tends to appear with SASTIND?
@@ -280,8 +276,6 @@ library(cowplot)
 
 g <- correlations_filtered %>% 
   graph_from_data_frame(directed = FALSE) 
-
-plot(g, layout = layout_with_fr, label.family = "Songti TC", vertex.size = 5)
 
 correlations %>% 
   filter(correlation > 0) %>% 
