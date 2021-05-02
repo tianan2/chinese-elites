@@ -217,7 +217,12 @@ library(widyr)
 library(reshape2)
 
 mcf_docs_filtered %>% 
-  acast(index ~ entity)
+  group_by(index, entity) %>% 
+  nest() %>% 
+  mutate(data = map(data, ~ cbind(expand.grid(.x$entity, .x$entity)))) %>% 
+  set_names((paste0("V", 1:2))) %>% 
+  unnest()
+  
 ```
 
 ```{r}
@@ -277,74 +282,36 @@ library(cowplot)
 g <- correlations_filtered %>% 
   graph_from_data_frame(directed = FALSE) 
 
-correlations %>% 
+network_plot <- function(data) {
+  data %>% 
   filter(correlation > 0) %>% 
   graph_from_data_frame() %>% 
   ggraph(layout = "with_kk") +
   geom_edge_link(aes(alpha = correlation)) +
   geom_node_point() +
   geom_node_text(aes(label = name), family = "Songti TC", repel = TRUE) +
-  labs(title = "Figure 4. The structure of MCF policy network", 
-       caption = "Data Source: MCF Documents Dataset Ver.1") +
   theme(plot.title = element_text(face = "bold"))
+}
 
 correlations_filtered %>% 
-  filter(correlation > 0) %>% 
-  graph_from_data_frame() %>% 
-  ggraph(layout = "with_kk") +
-  geom_edge_link(aes(alpha = correlation)) +
-  geom_node_point() +
-  geom_node_text(aes(label = name), family = "Songti TC", repel = TRUE) +
+  network_plot() +
   labs(title = "Figure 4. The structure of MCF policy network", 
-       caption = "Data Source: MCF Documents Dataset Ver.1") +
-  theme(plot.title = element_text(face = "bold"))
+       caption = "Data Source: MCF Documents Dataset Ver.1") 
 
-correlations_filtered_1316 %>% 
-  filter(correlation > 0) %>% 
-  graph_from_data_frame() %>% 
-  ggraph(layout = "with_kk") +
-  geom_edge_link(aes(alpha = correlation)) +
-  geom_node_point() +
-  geom_node_text(aes(label = name), family = "Songti TC", repel = TRUE) +
-  labs(title = "Figure 4. The structure of MCF policy network", 
-       caption = "Data Source: MCF Documents Dataset Ver.1") +
-  theme(plot.title = element_text(face = "bold"))
-
-correlations_filtered_1720 %>% 
-  filter(correlation > 0) %>% 
-  graph_from_data_frame() %>% 
-  ggraph(layout = "with_kk") +
-  geom_edge_link(aes(alpha = correlation)) +
-  geom_node_point() +
-  geom_node_text(aes(label = name), family = "Songti TC", repel = TRUE) +
-  labs(title = "Figure 4. The structure of MCF policy network", 
-       caption = "Data Source: MCF Documents Dataset Ver.1") +
-  theme(plot.title = element_text(face = "bold"))
-
-network_1316 <- correlations_1316 %>% 
-  filter(correlation > 0) %>% 
-  graph_from_data_frame() %>% 
-  ggraph(layout = "with_kk") +
-  geom_edge_link(aes(alpha = correlation)) +
-  geom_node_point() +
-  geom_node_text(aes(label = name), family = "Songti TC", repel = TRUE) +
+network_plot_1316 <- correlations_filtered_1316 %>% 
+  network_plot() +
   labs(title = "2013-2016") +
   theme(legend.position = "none") 
 
-network_1720 <- correlations_1720 %>% 
-  filter(correlation > 0) %>% 
-  graph_from_data_frame() %>% 
-  ggraph(layout = "with_kk") +
-  geom_edge_link(aes(alpha = correlation)) +
-  geom_node_point() +
-  geom_node_text(aes(label = name), family = "Songti TC", repel = TRUE) +
+network_plot_1720 <- correlations_filtered_1720 %>% 
+  network_plot() +
   labs(title = "2017-2020") +
-  theme(legend.position = "none")
+  theme(legend.position = "none") 
 
 title_gg <- ggdraw() + draw_label("Figure 4. The structure of MCF policy network (before and after 2017)", 
              size = 12)
 
-gridded <- plot_grid(network_1316, network_1720, nrow = 1)
+gridded <- plot_grid(network_plot_1316, network_plot_1720, nrow = 1)
 
 plot_grid(title_gg, gridded, ncol = 1, rel_heights = c(0.05, 1))
 
