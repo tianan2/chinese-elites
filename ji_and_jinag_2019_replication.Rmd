@@ -10,10 +10,169 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
 library(haven)
+library(readxl)
 theme_set(theme_light())
 
 full_data <- read_dta("ji_and_jiang_2019/data.dta")
 read_dta("ji_and_jiang_2019/abs3_merge_party.dta")
 read_dta("ji_and_jiang_2019/abs4_merge_party.dta")
+```
+
+
+
+```{r}
+full_data %>% 
+  count(survey, sort = T)
+```
+
+######################################################################################
+# Figure 1 Sample Deviation from Population Statistics: Before and After Reweighting #
+######################################################################################
+
+```{r}
+data_1 <- read_excel("ji_and_jiang_2019/Fig.xlsx", sheet=1)
+
+datatidyr <- data_1 %>% gather(attribute, value, CCP:age) %>% 
+  mutate(att = factor(attribute, levels = c("CCP", "female", "edu", "age"),
+                      labels=c("% CCP membership","% of female CCP member","% of college educated CCP member","% of CCP member at age<=35"))) %>% 
+  mutate(survey1 = factor(survey, levels = c("ABS4(2015)", "ABS3(2011)", "CGSS2015", "CGSS2013","CGSS2012","CGSS2010","CFPS2014")))
+
+pdf("Figure1.pdf",width=10, height=4)
+
+datatidyr %>% 
+  ggplot(aes(x = value, y = att, group = as.factor(group),
+                     shape = as.factor(group), color = as.factor(group))) + 
+  geom_point(size = 2) + 
+  facet_grid(. ~ survey1) + 
+  scale_y_discrete(limits = c("% of CCP member at age<=35","% of college educated CCP member",
+                            "% of female CCP member","% CCP membership")) +
+  geom_vline(aes(xintercept=0), colour="#62BCE9", linetype="dashed") +
+  scale_color_brewer(palette="Set1",
+                     name = "",
+                     breaks=c("Origin", "Raked"),
+                     labels=c("Before weight calibration","After weight calibration")) +
+  scale_shape_manual(name = "",
+                     breaks=c("Origin", "Raked"),values=c(19,17),
+                     labels=c("Before weight calibration","After weight calibration")) +
+  xlab("% in Survey - % in Population")+ylab("")+
+  scale_x_continuous(limits=c(-0.22,0.1),labels = scales::percent_format(accuracy = 1)) +
+  theme_bw() + 
+  theme(axis.text.x = element_text(size=8),
+        axis.text.y = element_text(size=11),
+        axis.title.x=element_text(face="bold",vjust=-.5,size=11),
+        axis.title.y=element_text(face="bold",vjust=1),
+        legend.text = element_text(size=11),
+        strip.text=element_text(size=13),
+        text=element_text(family="Times"),
+        legend.position="bottom",
+        legend.direction="horizontal")
+
+dev.off() 
+```
+
+#######################################################
+# Figure 2: Main Result: Weighted Difference in Means #
+#######################################################
+
+
+```{r}
+library(ggridges)
+
+data_2 <- read_dta("ji_and_jiang_2019/data.dta")
+
+datatidyr_2 <- data_2 %>% 
+  gather(attribute, value, social_value:modern_all_value) %>% 
+  mutate(values = factor(attribute, levels = c("social_value", "political_value", "intl_value", "modern_all_value"),
+                         labels = c("Social","Political","International","Overall modern value")))
+
+dg_cfps    <- data.frame(values = unique(datatidyr_2$values),
+                         labels1 = c("Public:0.093\n[0.082,0.104]","","",""),
+                         labels2 = c("CCP:0.410\n[0.373,0.447]","","",""))
+
+dg_cgss2010 <- data.frame(values = unique(datatidyr_2$values),
+                          labels1 = c("Public:-0.090\n[-0.109,-0.071]","","",""),
+                          labels2 = c("CCP:0.337\n[0.287,0.386]","","",""))
+
+dg_cgss2012 <- data.frame(values = unique(datatidyr_2$values),
+                          labels1 = c("Public:-0.050\n[-0.069,-0.031]","","",""),
+                          labels2 = c("CCP:0.412\n[0.360,0.463]","","",""))
+
+dg_cgss2013 <- data.frame(values = unique(datatidyr_2$values),
+                          labels1 = c("Public:-0.031\n[-0.050,-0.012]","","",""),
+                          labels2 = c("CCP:0.301\n[0.243,0.360]","","",""))
+
+dg_cgss2015 <- data.frame(values = unique(datatidyr_2$values),
+                          labels1 = c("Public:-0.054\n[-0.074,-0.035]","","",""),
+                          labels2 = c("CCP:0.287\n[0.229,0.345]","","",""))
+
+dg_abs3 <- data.frame(values = unique(datatidyr_2$values),
+                    labels1 = c("Public:0.012\n[-0.025,0.048]",
+                              "Public:0.012\n[-0.025,0.048]",
+                              "Public:0.005\n[-0.031,0.041]",
+                              "Public:0.012\n[-0.024,0.048]"),
+                    labels2 = c("CCP:0.230\n[0.150,0.310]",
+                              "CCP:0.326\n[0.244,0.407]",
+                              "CCP:0.169\n[0.084,0.254]",
+                              "CCP:0.347\n[0.265,0.429]"))
+
+dg_abs4 <- data.frame(values = unique(datatidyr_2$values),
+                    labels1 = c("Public:0.084\n[0.052,0.115]",
+                              "Public:0.122\n[0.091,0.153]",
+                              "Public:0.041\n[0.009,0.074]",
+                              "Public:0.125\n[0.094,0.156]"),
+                    labels2 = c("CCP:0.421\n[0.327,0.516]",
+                              "CCP:0.351\n[0.259,0.444]",
+                              "CCP:0.165\n[0.056,0.275]",
+                              "CCP:0.458\n[0.368,0.549]"))
+
+pdf("Figure2.pdf",width=10, height=8)
+datatidyr_2 %>% 
+  ggplot(weight = wcn2)+
+  geom_density_ridges(aes(y = str_survey, 
+                          x = value,color = paste(str_survey, party),    
+                          fill = paste(str_survey, party),
+                          linetype = paste(str_survey, party)),
+                      alpha = .001,na.rm = FALSE,scale = 0.95)+
+  facet_grid(. ~ values)+
+  scale_fill_cyclical(breaks = c("0", "1"),
+                      labels = c("Public","CCP Member"),
+                      values = c("#377eb8","#e41a1c"),
+                      name = "") +
+  scale_color_cyclical(breaks = c("0", "1"),
+                       labels = c("Public","CCP Member"),
+                       values = c("#377eb8","#e41a1c"),
+                       name = "") +
+  scale_linetype_cyclical(breaks = c("0", "1"),
+                          labels = c("Public","CCP Member"),
+                          values = c(1,5),
+                          name = "") +
+  ylab("")+xlab("")+
+  geom_text(data=dg_cfps,    mapping=aes(x=6,y=1.5,label=labels1,color="#377eb8"),size=2.8,lineheight=0.8,hjust = 1)+
+  geom_text(data=dg_cfps,    mapping=aes(x=6,y=1.8,label=labels2,color="#e41a1c"),size=2.8,lineheight=0.8,hjust = 1)+
+  geom_text(data=dg_cgss2010,mapping=aes(x=6,y=2.5,label=labels1,color="#377eb8"),size=2.8,lineheight=0.8,hjust = 1)+
+  geom_text(data=dg_cgss2010,mapping=aes(x=6,y=2.8,label=labels2,color="#e41a1c"),size=2.8,lineheight=0.8,hjust = 1)+
+  geom_text(data=dg_cgss2012,mapping=aes(x=6,y=3.5,label=labels1,color="#377eb8"),size=2.8,lineheight=0.8,hjust = 1)+
+  geom_text(data=dg_cgss2012,mapping=aes(x=6,y=3.8,label=labels2,color="#e41a1c"),size=2.8,lineheight=0.8,hjust = 1)+
+  geom_text(data=dg_cgss2013,mapping=aes(x=6,y=4.5,label=labels1,color="#377eb8"),size=2.8,lineheight=0.8,hjust = 1)+
+  geom_text(data=dg_cgss2013,mapping=aes(x=6,y=4.8,label=labels2,color="#e41a1c"),size=2.8,lineheight=0.8,hjust = 1)+
+  geom_text(data=dg_cgss2015,mapping=aes(x=6,y=5.5,label=labels1,color="#377eb8"),size=2.8,lineheight=0.8,hjust = 1)+
+  geom_text(data=dg_cgss2015,mapping=aes(x=6,y=5.8,label=labels2,color="#e41a1c"),size=2.8,lineheight=0.8,hjust = 1)+
+  geom_text(data=dg_abs3,    mapping=aes(x=6,y=6.5,label=labels1,color="#377eb8"),size=2.8,lineheight=0.8,hjust = 1)+
+  geom_text(data=dg_abs3,    mapping=aes(x=6,y=6.8,label=labels2,color="#e41a1c"),size=2.8,lineheight=0.8,hjust = 1)+
+  geom_text(data=dg_abs4,    mapping=aes(x=6,y=7.5,label=labels1,color="#377eb8"),size=2.8,lineheight=0.8,hjust = 1)+
+  geom_text(data=dg_abs4,    mapping=aes(x=6,y=7.8,label=labels2,color="#e41a1c"),size=2.8,lineheight=0.8,hjust = 1)+
+  theme_bw() + scale_x_continuous(expand=c(0.01,0))+
+  scale_y_discrete(expand=c(0.01,0),
+                   limits=c("CFPS2014","CGSS2010","CGSS2012",
+                            "CGSS2013","CGSS2015",
+                            "ABS3(2011)","ABS4(2015)"))+
+  theme(text=element_text(family="Times"),
+        legend.position="bottom",legend.direction="horizontal",
+        axis.title.x=element_text(face="bold",vjust=-.5),
+        axis.title.y=element_text(face="bold",vjust=1),
+        axis.text.x=element_text(size=12),
+        strip.text=element_text(size=13))
+
+dev.off()  
 ```
 
