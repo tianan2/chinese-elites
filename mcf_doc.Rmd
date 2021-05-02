@@ -2,7 +2,7 @@
 title: "Untitled"
 output: html_document
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -29,8 +29,9 @@ View(mcf_docs_raw)
 mcf_docs_raw %>% 
   filter(entity == "中央军民融合发展委员会") %>% 
   filter(str_detect(content, "批准"))
-  
 ```
+
+
 
 ```{r}
 mcf_docs_raw %>% 
@@ -38,11 +39,12 @@ mcf_docs_raw %>%
   filter(date_year < 2021) %>% 
   count(date_year) %>% 
   ggplot(aes(date_year, n)) +
+  geom_point(size = 2) +
   geom_line(size = 1) + 
   # geom_vline(xintercept = 2017) +
   scale_x_continuous(breaks = seq(2013, 2020, 1)) +
   scale_y_continuous(breaks = seq(0, 40, 5)) +
-  labs(title = "Figure 1. Number of Policy Documents relating to MCF over time (2013-2020)", 
+  labs(title = "Figure 2. Number of Policy Documents relating to MCF over time (2013-2020)", 
        x = " ", 
        y = " ", 
        caption = "Data Source: MCF documents dataset ver.1") +
@@ -65,10 +67,14 @@ mcf_docs_raw %>%
   theme_bw(base_family = "HiraKakuProN-W6")
 ```
 
+
+
 ```{r}
 mcf_docs_raw %>% 
   filter(str_detect(title, "总装备部"))
 ```
+
+
 
 ```{r}
 # Plot MCF by document type 
@@ -88,7 +94,9 @@ mcf_docs_raw %>%
         plot.title = element_text(face = "bold")) 
   # theme_bw(base_family = "Songti TC") 
 ```
-  
+
+
+
 ```{r}
 # Which level entity issues which type of documents?
 
@@ -117,6 +125,8 @@ mcf_docs_raw %>%
   
 ```
 
+
+
 ```{r}
 # Plot MCF by type over time
 mcf_docs_raw %>% 
@@ -137,6 +147,8 @@ mcf_docs_raw %>%
         plot.title = element_text(face = "bold")) 
 ```
 
+
+
 ```{r}
 # Plot MCF documents by entity
 mcf_docs_raw %>% 
@@ -154,6 +166,8 @@ mcf_docs_raw %>%
   theme(axis.text.y = element_text(family = "Songti TC"), 
         plot.title = element_text(face = "bold"))
 ```
+
+
 
 ```{r}
 library(viridis)
@@ -185,6 +199,7 @@ mcf_docs_raw %>%
 ```
 
 
+
 ```{r}
 # English name
 mcf_docs_raw %>% 
@@ -207,23 +222,19 @@ mcf_docs_raw %>%
   count(entity, sort = T)
 ```
 
-```{r}
-mcf_docs_raw %>% 
-  filter(str_detect(entity, "海洋局"))
-```
+
 
 ```{r}
 library(widyr)
 library(reshape2)
-
-mcf_docs_filtered %>% 
-  acast(index ~ entity)
 ```
+
+
 
 ```{r}
 mcf_docs_filtered <- mcf_docs_raw %>% 
-  add_count(entity, name = "entity_frequency") %>%
-  filter(entity_frequency > 1)
+  add_count(entity, name = "entity_frequency")
+  # filter(entity_frequency > 1)
 
 correlations_filtered <- mcf_docs_filtered %>% 
   pairwise_cor(entity, index, sort = T)
@@ -267,6 +278,8 @@ correlations_filtered %>%
        subtitle = "Among the entities that issued at least 2 policy documents") +
   theme_bw(base_family = "Songti TC")
 ```
+
+
 
 ```{r}
 library(ggraph)
@@ -320,8 +333,14 @@ correlations_filtered_1720 %>%
   labs(title = "Figure 4. The structure of MCF policy network", 
        caption = "Data Source: MCF Documents Dataset Ver.1") +
   theme(plot.title = element_text(face = "bold"))
+```
 
-network_1316 <- correlations_1316 %>% 
+
+## Visualization of policy network (comparison before and after 2017)
+
+
+```{r}
+network_1316 <- correlations_filtered_1316 %>% 
   filter(correlation > 0) %>% 
   graph_from_data_frame() %>% 
   ggraph(layout = "with_kk") +
@@ -331,7 +350,7 @@ network_1316 <- correlations_1316 %>%
   labs(title = "2013-2016") +
   theme(legend.position = "none") 
 
-network_1720 <- correlations_1720 %>% 
+network_1720 <- correlations_filtered_1720 %>% 
   filter(correlation > 0) %>% 
   graph_from_data_frame() %>% 
   ggraph(layout = "with_kk") +
@@ -342,13 +361,17 @@ network_1720 <- correlations_1720 %>%
   theme(legend.position = "none")
 
 title_gg <- ggdraw() + draw_label("Figure 4. The structure of MCF policy network (before and after 2017)", 
-             size = 12)
+             size = 15, fontface = "bold", hjust = .51)
 
 gridded <- plot_grid(network_1316, network_1720, nrow = 1)
 
 plot_grid(title_gg, gridded, ncol = 1, rel_heights = c(0.05, 1))
 
 ```
+
+
+## MCF documents by domain
+
 
 ```{r}
 mcf_docs_raw %>% 
@@ -375,9 +398,3 @@ mcf_docs_raw %>%
   theme(legend.text = element_text(family = "Songti TC"),
         plot.title = element_text(face = "bold")) 
 ```
-
-```{r}
-mcf_docs_raw
-```
-
-
