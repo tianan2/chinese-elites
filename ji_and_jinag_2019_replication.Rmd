@@ -176,3 +176,91 @@ datatidyr_2 %>%
 dev.off()  
 ```
 
+###################################################
+# Figure 3: Citizen-Party Member-Cadre Comparison #
+###################################################
+
+```{r}
+data_3 <- read_dta("ji_and_jiang_2019/data.dta")
+data_3 = data_3[complete.cases(data$cate),]
+
+datatidyr_3 <- data_3 %>% 
+  gather(attribute, value, social_value:modern_all_value) %>% 
+  mutate(values = factor(attribute, levels = c("social_value", "political_value", "intl_value", "modern_all_value"), 
+                         labels = c("Social", "Political", "International", "Overall modern value")))
+
+pdf("Figure3.pdf",width=10, height=8)
+
+datatidyr_3 %>% ggplot(weight = wcn2) + 
+  geom_density_ridges(aes(y = values, 
+                          x = value, 
+                          color = paste(values, cate),
+                          linetype = paste(values, cate),
+                          fill = paste(values, cate)), 
+                      alpha = .001, na.rm = FALSE, scale=0.95) +
+  scale_fill_cyclical(breaks = c("0", "1","2"),
+                      labels = c("Public","CCP Member","Cadre"),
+                      values = c("#377eb8","#e41a1c","#4daf4a"),
+                      name = "") +
+  scale_color_cyclical(breaks = c("0", "1","2"),
+                       labels = c("Public","CCP Member","Cadre"),
+                       values = c("#377eb8","#e41a1c","#4daf4a"),
+                       name = "") +
+  scale_linetype_cyclical(breaks = c("0", "1","2"),
+                          labels = c("Public","CCP Member","Cadre"),
+                          values = c(1,2,4),
+                          name = "") +
+  ylab("")+xlab("")+
+  scale_y_discrete(expand=c(0.01,0),
+                   limits=c("Overall modern value",
+                            "International",
+                            "Political",
+                            "Social"))+
+  annotate(geom="text", x=3, y=4.4,hjust = 0,size=4,
+           color="#377eb8",lineheight=0.8,
+           label="Public:0.011\n[0.004,0.018]")+
+  annotate(geom="text", x=3, y=4.25,hjust = 0,size=4,
+           color="#e41a1c",lineheight=0.8,
+           label="Party:0.328\n[0.305,0.351]")+
+  annotate(geom="text", x=3, y=4.1,hjust = 0,size=4,
+           color="#4daf4a",lineheight=0.8,
+           label="Cadre:0.563\n[0.508,0.618]")+
+  annotate(geom="text", x=3, y=3.5,hjust = 0,size=4,
+           color="#377eb8",lineheight=0.8,
+           label="Public:0.122\n[0.091,0.153]")+
+  annotate(geom="text", x=3, y=3.35,hjust = 0,size=4,
+           color="#e41a1c",lineheight=0.8,
+           label="Party:0.356\n[0.255,0.457]")+
+  annotate(geom="text", x=3, y=3.2,hjust = 0,size=4,
+           color="#4daf4a",lineheight=0.8,
+           label="Cadre:0.317\n[0.116,0.518]")+
+  annotate(geom="text", x=3, y=2.5,hjust = 0,size=4,
+           color="#377eb8",lineheight=0.8,
+           label="Public:0.041\n[0.009,0.074]")+
+  annotate(geom="text", x=3, y=2.35,hjust = 0,size=4,
+           color="#e41a1c",lineheight=0.8,
+           label="Party:0.174\n[0.057,0.291]")+
+  annotate(geom="text", x=3, y=2.2,hjust = 0,size=4,
+           color="#4daf4a",lineheight=0.8,
+           label="Cadre:0.100\n[-0.220,0.420]")+
+  annotate(geom="text", x=3, y=1.5,hjust = 0,size=4,
+           color="#377eb8",lineheight=0.8,
+           label="Public:0.125\n[0.094,0.156]")+
+  annotate(geom="text", x=3, y=1.35,hjust = 0,size=4,
+           color="#e41a1c",lineheight=0.8,
+           label="Party:0.465\n[0.366,0.564]")+
+  annotate(geom="text", x=3, y=1.2,hjust = 0,size=4,
+           color="#4daf4a",lineheight=0.8,
+           label="Cadre:0.409\n[0.206,0.613]")+
+  theme_bw()+theme(text=element_text(family="Times"),
+                   legend.position="bottom",legend.direction="horizontal",
+                   axis.title.x=element_text(face="bold",size=16,vjust=-.5),
+                   axis.title.y=element_text(face="bold",size=16,vjust=1),
+                   axis.text.x=element_text(size=12),
+                   axis.text.y=element_text(size=14),
+                   strip.text=element_text(size=13))
+dev.off()
+```
+
+
+
