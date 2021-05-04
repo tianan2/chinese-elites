@@ -74,10 +74,9 @@ mcf_docs_raw %>%
   filter(str_detect(title, "总装备部"))
 ```
 
-
+## Plot MCF by document type
 
 ```{r}
-# Plot MCF by document type 
 mcf_docs_raw %>% 
   distinct(index, .keep_all = TRUE) %>% 
   count(type, sort = T) %>% 
@@ -91,15 +90,13 @@ mcf_docs_raw %>%
        caption = "Data Source: MCF Documents Dataset Ver. 1") +
   theme_classic() +
   theme(axis.text.y = element_text(family = "Songti TC"), 
-        plot.title = element_text(face = "bold")) 
+        plot.title = element_text(face = "bold", size = 15)) 
   # theme_bw(base_family = "Songti TC") 
 ```
 
-
+## Plot MCF by document type and issuing authority
 
 ```{r}
-# Which level entity issues which type of documents?
-
 mcf_docs_raw %>% 
   count(type, entity_rank) %>% 
   mutate(entity_rank = fct_recode(entity_rank, 
@@ -111,7 +108,7 @@ mcf_docs_raw %>%
   mutate(type = fct_reorder(type, n, sum)) %>% 
   ggplot(aes(n, type, fill = entity_rank)) +
   geom_col() +
-  labs(title = "Figure 5-1. MCF policy documents by type (2013-2020)", 
+  labs(title = "Figure 5. MCF policy documents by type (2013-2020)", 
        y = " ",
        x = "Number of documents", 
        fill = " ", 
@@ -119,13 +116,13 @@ mcf_docs_raw %>%
   scale_fill_viridis(discrete = TRUE, option = "B") +
   theme_classic() +
   theme(axis.text.y = element_text(family = "Songti TC"), 
-        plot.title = element_text(face = "bold"), 
+        plot.title = element_text(face = "bold", size = 15), 
         legend.position = "bottom")
   # theme_bw(base_family = "Songti TC") 
   
 ```
 
-
+## Plot MCF by type over time
 
 ```{r}
 # Plot MCF by type over time
@@ -227,7 +224,6 @@ mcf_docs_raw %>%
 ```{r}
 library(widyr)
 library(reshape2)
-<<<<<<< HEAD
 
 mcf_docs_filtered %>% 
   group_by(index, entity) %>% 
@@ -235,9 +231,7 @@ mcf_docs_filtered %>%
   mutate(data = map(data, ~ cbind(expand.grid(.x$entity, .x$entity)))) %>% 
   set_names((paste0("V", 1:2))) %>% 
   unnest()
-  
-=======
->>>>>>> 9abca55a10f1c1355c1baeeddf8000c166e4bf11
+
 ```
 
 
@@ -315,7 +309,6 @@ network_plot <- function(data) {
 correlations_filtered %>% 
   network_plot() +
   labs(title = "Figure 4. The structure of MCF policy network", 
-<<<<<<< HEAD
        caption = "Data Source: MCF Documents Dataset Ver.1") 
 
 network_plot_1316 <- correlations_filtered_1316 %>% 
@@ -324,9 +317,8 @@ network_plot_1316 <- correlations_filtered_1316 %>%
   theme(legend.position = "none") 
 
 network_plot_1720 <- correlations_filtered_1720 %>% 
-  network_plot() +
-=======
-       caption = "Data Source: MCF Documents Dataset Ver.1") +
+  network_plot() + 
+  labs(caption = "Data Source: MCF Documents Dataset Ver.1") +
   theme(plot.title = element_text(face = "bold"))
 ```
 
@@ -352,7 +344,6 @@ network_1720 <- correlations_filtered_1720 %>%
   geom_edge_link(aes(alpha = correlation)) +
   geom_node_point() +
   geom_node_text(aes(label = name), family = "Songti TC", repel = TRUE) +
->>>>>>> 9abca55a10f1c1355c1baeeddf8000c166e4bf11
   labs(title = "2017-2020") +
   theme(legend.position = "none") 
 
@@ -384,7 +375,7 @@ mcf_docs_raw %>%
   ggplot(aes(date_year, n, fill = domain)) +
   geom_col() + 
   scale_x_continuous(breaks = seq(2013, 2020, 1)) +
-  labs(title = "Figure 7. MCF policy documents by domain over time (2013-2020)", 
+  labs(title = "Figure 6. MCF policy documents by domain over time (2013-2020)", 
        x = " ",
        y = "Number of documents", 
        fill = " ", 

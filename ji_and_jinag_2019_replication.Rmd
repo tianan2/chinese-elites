@@ -30,7 +30,7 @@ full_data %>%
 ######################################################################################
 
 ```{r}
-data_1 <- read_excel("ji_and_jiang_2019/Fig.xlsx", sheet=1)
+data_1 <- read_excel("ji_and_jiang_2019/Fig.xlsx", sheet = 1)
 
 datatidyr <- data_1 %>% gather(attribute, value, CCP:age) %>% 
   mutate(att = factor(attribute, levels = c("CCP", "female", "edu", "age"),
@@ -69,6 +69,7 @@ datatidyr %>%
 
 dev.off() 
 ```
+
 
 #######################################################
 # Figure 2: Main Result: Weighted Difference in Means #
@@ -261,6 +262,65 @@ datatidyr_3 %>% ggplot(weight = wcn2) +
                    strip.text=element_text(size=13))
 dev.off()
 ```
+
+
+#####################################################################################
+# Figure 4: Party-Public Comparison in Subsamples Less Affected Social Desirability #
+#####################################################################################
+
+
+```{r}
+data_4 <- read_excel("ji_and_jiang_2019/Fig.xlsx", sheet = 4)
+
+data_4 %>% mutate(Value = factor(Value, levels = c("social","political","intl","modern"),
+                                 labels = c("Social","Political","International","Overall modern value")), 
+                  question = factor(question, levels = c('Answer reliable.',
+                                                         'No doubts about the survey.',
+                                                         '"Government officials often violate law and abuse power"',
+                                                         '"Officials often conceal information from the public"',
+                                                         '"Criminal officials often escape punishment"'),
+                                    labels = c('Answer reliable.', 
+                                               'No doubts about the survey.',
+                                               '"Government officials often \n violate law and abuse power"', 
+                                               '"Officials often conceal \n information from the public"', 
+                                               '"Criminal officials often \n escape punishment"'))
+pd <- position_dodge(0.6)
+
+pdf("Figure4.pdf",width=9, height=5)
+
+ggplot(data_4, aes(x = question, y = mean,
+                group = as.factor(party),
+                shape = as.factor(party),
+                color = as.factor(party),
+                label = round(mean,3)))+
+  geom_point(size = 1.5, position = pd)+
+  geom_hline(aes(yintercept = 0), colour = "#62BCE9", linetype = "dashed")+
+  geom_text(size = 2.8, hjust = 0.5, vjust = -0.6, position = pd, show.legend = FALSE)+
+  geom_errorbar(aes(ymin = lb95, 
+                    ymax = ub95), width = 0, position = pd)+
+  facet_grid(. ~ Value)+
+  scale_color_manual(values = c("#377eb8","#e41a1c"),
+                     name = "",
+                     breaks = c("0","1"),
+                     labels = c("Public","CCP member"))+
+  scale_shape_manual(name = "",
+                     breaks = c("0","1"),
+                     labels = c("Public","CCP member"),
+                     values = c(19,17))+
+  xlab("")+ylab("Weighted Mean Estimator")+
+  scale_y_continuous(limits = c(-0.1,0.8), breaks = seq(-0,0.8,0.2))+
+  theme_bw()+
+  theme(text=element_text(family="Times"),
+        legend.position="bottom",legend.direction="horizontal",
+        axis.title.x=element_text(face="bold",size=16,vjust=-.5),
+        axis.title.y=element_text(face="bold",size=16,vjust=1),
+        axis.text.x = element_text(size=12),
+        axis.text.y = element_text(hjust=0),
+        axis.text.y.left  = element_text(size=10),
+        strip.text=element_text(size=13),
+        legend.text = element_text(size=10))+
+  coord_flip()
+dev.off() 
 
 
 
