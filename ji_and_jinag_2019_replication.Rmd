@@ -1,6 +1,8 @@
 ---
 title: "Untitled"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -19,15 +21,10 @@ read_dta("ji_and_jiang_2019/abs4_merge_party.dta")
 ```
 
 
-
-```{r}
-full_data %>% 
-  count(survey, sort = T)
-```
-
 ######################################################################################
 # Figure 1 Sample Deviation from Population Statistics: Before and After Reweighting #
 ######################################################################################
+
 
 ```{r}
 data_1 <- read_excel("ji_and_jiang_2019/Fig.xlsx", sheet = 1)
@@ -67,7 +64,6 @@ datatidyr %>%
         legend.position="bottom",
         legend.direction="horizontal")
 
-dev.off() 
 ```
 
 
@@ -127,6 +123,7 @@ dg_abs4 <- data.frame(values = unique(datatidyr_2$values),
                               "CCP:0.458\n[0.368,0.549]"))
 
 pdf("Figure2.pdf",width=10, height=8)
+
 datatidyr_2 %>% 
   ggplot(weight = wcn2)+
   geom_density_ridges(aes(y = str_survey, 
@@ -173,17 +170,17 @@ datatidyr_2 %>%
         axis.title.y=element_text(face="bold",vjust=1),
         axis.text.x=element_text(size=12),
         strip.text=element_text(size=13))
-
-dev.off()  
 ```
+
 
 ###################################################
 # Figure 3: Citizen-Party Member-Cadre Comparison #
 ###################################################
 
+
 ```{r}
 data_3 <- read_dta("ji_and_jiang_2019/data.dta")
-data_3 = data_3[complete.cases(data$cate),]
+data_3 = data_3[complete.cases(data_3$cate),]
 
 datatidyr_3 <- data_3 %>% 
   gather(attribute, value, social_value:modern_all_value) %>% 
@@ -282,7 +279,7 @@ data_4 %>% mutate(Value = factor(Value, levels = c("social","political","intl","
                                                'No doubts about the survey.',
                                                '"Government officials often \n violate law and abuse power"', 
                                                '"Officials often conceal \n information from the public"', 
-                                               '"Criminal officials often \n escape punishment"'))
+                                               '"Criminal officials often \n escape punishment"')))
 pd <- position_dodge(0.6)
 
 pdf("Figure4.pdf",width=9, height=5)
@@ -319,7 +316,246 @@ ggplot(data_4, aes(x = question, y = mean,
         strip.text=element_text(size=13),
         legend.text = element_text(size=10))+
   coord_flip()
-dev.off() 
+```
 
 
+########################################
+# Figure 5: Heterogenous Party Effects #
+########################################
+
+
+```{r}
+data_5 <- read_excel("ji_and_jiang_2019/Fig.xlsx", sheet = 5)
+
+data_5$Value <- factor(data_5$Value, levels = c("social", "political", "intl", "modern"),labels=c("Social","Political","International","Overall modern value"))
+
+pd <- position_dodge(0.8)
+
+pdf("Figure5.pdf", width=9, height=8)
+
+ggplot(data_5,aes(x = cate, y = mean,label = round(mean,3),
+                color = as.factor(party),shape = as.factor(party)))+
+  geom_hline(aes(yintercept=0), colour="#62BCE9", linetype="dashed")+
+  geom_point(size = 1.8, position = pd)+
+  geom_errorbar(aes(ymin = lb95, ymax = ub95),width = 0, position = pd)+
+  geom_text(size = 2.8, hjust = 0.5,vjust = -0.6,
+            position = pd, show.legend=FALSE)+
+  facet_grid(~ Value)+
+  scale_y_continuous(limits = c(-0.6,1.02),breaks = seq(-0.4,1.0,0.4)) + 
+  scale_x_discrete(limits = c("75%-100% (highest)",
+                            "25%-75% (middle)",
+                            "0%-25% (lowest)",
+                            "Income level",
+                            "Old (60)",
+                            "Middle age (45)",
+                            "Young (30)",
+                            "Age",
+                            "Urban",
+                            "Rural",
+                            "Residency",
+                            "Female",
+                            "Male",
+                            "Gender",
+                            "College",
+                            "No college",
+                            "Education")) + 
+  scale_color_manual(values=c("#377eb8","#e41a1c"),
+                     name = "",
+                     breaks=c("0","1"),
+                     labels=c("Public","CCP member"))+
+  scale_shape_manual(name = "",
+                     breaks=c("0","1"),
+                     labels=c("Public","CCP member"),
+                     values=c(19,17))+
+  xlab("")+ylab("Predicted Ideology")+theme_bw() +
+  theme(text=element_text(family="Times"),
+        legend.position="bottom",
+        legend.direction="horizontal",
+        axis.title.x=element_text(face="bold",size=16,vjust=-.5),
+        axis.title.y=element_text(face="bold",size=16,vjust=1),
+        axis.text.x=element_text(size=12),
+        axis.text.y = element_text(size=c(10,10,10,11,10,10,10,
+                                11,10,10,11,10,10,11,10,10,11),
+                      face = c('plain','plain','plain','bold',
+                               'plain','plain','plain','bold',
+                               'plain','plain','bold','plain',
+                               'plain','bold','plain','plain',
+                               'bold'),hjust = 0),
+        strip.text.x = element_text(size=13),
+        legend.text = element_text(size=11))+
+  coord_flip()
+
+```
+
+
+####################################
+# Figure A.1: PCA and Cronbach??s ?? #
+####################################
+
+
+```{r}
+data_6 <- read_excel("ji_and_jiang_2019/Fig.xlsx", sheet = 6)
+
+data_6 <- subset(data_6,data_6$comp<11)
+
+data_6$Value <- factor(data_6$Value, levels = c("social", "political",
+                                         "intl", "modern"),
+                    labels=c("Social","Political","International","Overall modern value"))
+data_6$survey <- factor(data_6$survey, levels = c("ABS4(2015)", "ABS3(2011)", "CGSS2015", "CGSS2013","CGSS2012","CGSS2010","CFPS2014"))
+
+pdf("Figurea1.pdf",width=10, height=8)
+
+data_6 %>% 
+  ggplot(aes(x=comp,y=pro,label=propt)) +
+  geom_bar(stat="identity") + 
+  geom_line() + 
+  geom_point() +
+  geom_text(vjust=-0.1,hjust=-0.1) +
+  geom_text(data=data,mapping=aes(x=9,y=0.5,label=alpha),
+            size=4,lineheight=0.8,hjust = 1,parse = TRUE) +
+  facet_grid(survey ~ Value) +
+  scale_x_continuous(limits=c(0.5,10.5),breaks=seq(1,10,1))+
+  scale_y_continuous(limits=c(0,0.64))+
+  ylab("Explained variances share")+xlab("Component Number")+
+  theme_bw() + 
+  theme(text=element_text(family="Times"),
+                   legend.position="bottom",
+                   legend.direction="horizontal",
+                   axis.title.x=element_text(face="bold",vjust=-.5),
+                   axis.title.y=element_text(face="bold",vjust=1),
+                   title=element_text(face="bold",size=16,vjust=1.5),
+                   axis.text.x=element_text(size=12),
+                   strip.text=element_text(size=13))
+
+```
+
+
+############################################################################
+# FFigure A.3: Comparing Demographics of CCP Members and Population Census #
+############################################################################
+
+
+```{r}
+data_7 <- read_excel("ji_and_jiang_2019/Fig.xlsx", sheet = 7)
+
+data_7_tidied <- data_7 %>% gather(census, value, "Population Census": "CCP Census")
+
+theme_set(theme_bw() + 
+            theme(text = element_text(family="Times"),
+                  legend.position = "bottom", 
+                  legend.direction = "horizontal", 
+                  axis.title.x = element_text(face="bold",vjust=-.5),
+                  axis.title.y = element_text(face="bold",vjust=1),
+                  title = element_text(face="bold",size=16,vjust=1.5),
+                  axis.text.x=element_text(size=12),
+                  strip.text=element_text(size=13)))
+
+pdf("Figurea3.pdf",width=6, height=8)
+
+ggplot(data_7_tidied, aes(x=att, y=value,fill=census))+
+  geom_bar(stat = "identity",position="dodge", 
+           colour="black",alpha=0.5)+
+  scale_fill_brewer(palette="Set1",name = "",
+                    breaks=c("CCP Census", "Population Census"),
+                    labels=c("CCP Census", "Population Census"))+
+  scale_x_discrete(limits=c("minority","some university and above",
+                            "71 and above","66-70","61-65",
+                            "56-60","51-55","46-50","41-45",
+                            "36-40","31-35","18-30","female"))+
+  xlab("Attribute")+ylab("Proportion")+
+  coord_flip()
+
+```
+
+
+##################################################################################################
+# Figure A.6: Correlations between Social and Political Domains for Party Members and NonMembers #
+##################################################################################################
+
+```{r}
+library(gridExtra)
+
+data_8 <- read_dta("ji_and_jiang_2019/data.dta")
+
+party <- subset(data_8, data_8$party==1)
+public <- subset(data_8, data_8$party==0)
+
+p1<-ggplot(party,aes(x=social_value,y=political_value))+
+  geom_point(alpha=0.7)+geom_smooth(method='lm')+
+  xlab("Social")+ylab("Political")+
+  annotate(geom="text", x=-4, y=4,hjust = 0,size=5,
+           label  = "paste(Party: rho==0.467, \" *** \")",
+           parse = TRUE)+
+  scale_x_continuous(limits=c(-4.1,4.1),breaks=seq(-4,4,1))+
+  scale_y_continuous(limits=c(-4.1,4.1),breaks=seq(-4,4,1))
+
+p2<-ggplot(public,aes(x=social_value,y=political_value))+
+  geom_point(alpha=0.7)+geom_smooth(method='lm')+
+  xlab("Social")+ylab("")+
+  annotate(geom="text", x=-4, y=4,hjust = 0,size=5,
+           label  = "paste(Public: rho==0.492, \" *** \")",
+           parse = TRUE)+
+  scale_x_continuous(limits=c(-4.1,4.1),breaks=seq(-4,4,1))+
+  scale_y_continuous(limits=c(-4.1,4.1),breaks=seq(-4,4,1))
+
+pdf("Figurea6.pdf", width=10, height=5)
+grid.arrange(p1,p2, ncol=2, nrow=1)
+
+```
+
+
+###########################################
+# Figure A.7: By Year of Party Enrollment #
+###########################################
+
+```{r}
+
+data_10 <- read_excel("ji_and_jiang_2019/Fig.xlsx", sheet = 10)
+
+data_10_tidied <- data_10 %>% gather(attribute, value, social:modern)
+
+theme_set(theme_bw() + 
+            theme(text=element_text(family="Times"),
+                  legend.position="bottom",
+                  legend.direction="horizontal",
+                  axis.title.x=element_text(face="bold",vjust=-.5),
+                  axis.title.y=element_text(face="bold",vjust=1),
+                  title=element_text(face="bold",size=16,vjust=1.5),
+                  axis.text.x=element_text(size=12),
+                  axis.text.y=element_text(size=12),
+                  strip.text=element_text(size=13)))
+
+pdf("Figurea7.pdf",width=10, height=6)
+
+ggplot(data_10_tidied,aes(x=yrgroup, y=value,color=attribute,
+                     group=attribute,shape=attribute))+
+  geom_point(size=2)+
+  geom_line(aes(linetype=attribute))+
+  scale_color_brewer(palette="Set1",name = "",
+                     breaks=c("social", "political","intl","modern"),
+                     labels=c("Social",
+                              "Political",
+                              "International",
+                              "Overall modern value"))+
+  scale_linetype_manual(name = "",
+                        breaks=c("modern", "demo","intl","liberal"),
+                        labels=c("Social",
+                                 "Political",
+                                 "International",
+                                 "Overall modern value"),
+                        values=c("dashed","twodash","solid","dotted"))+
+  scale_shape_manual(name = "",
+                     breaks=c("modern", "demo","intl","liberal"),
+                     labels=c("Social",
+                              "Political",
+                              "International",
+                              "Overall modern value"),
+                     values=c(19,17,18,15))+
+  xlab("Year Group")+ylab("")+
+  theme(legend.text = element_text(size=11))+
+  scale_x_discrete(limits=c("<1950","1950-1965","1966-1976",
+                            "1977-1989","1990-2002",
+                            "2003-2012",">2012"))
+
+```
 

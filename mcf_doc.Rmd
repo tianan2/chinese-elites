@@ -31,9 +31,11 @@ mcf_docs_raw %>%
   filter(str_detect(content, "批准"))
 ```
 
-
+## Plot the number of documents over time
 
 ```{r}
+pdf("mcf_Figure2.pdf", width=10, height=6)
+
 mcf_docs_raw %>% 
   distinct(index, .keep_all = T) %>% 
   filter(date_year < 2021) %>% 
@@ -49,8 +51,11 @@ mcf_docs_raw %>%
        y = " ", 
        caption = "Data Source: MCF documents dataset ver.1") +
   theme_classic() +
-  theme(plot.title = element_text(face = "bold"))
+  theme(plot.title = element_text(family = "Times", face = "bold", size = 15))
+```
 
+
+```{r}
 mcf_docs_raw %>% 
   distinct(index, .keep_all = T) %>% 
   filter(date_year < 2021) %>% 
@@ -65,13 +70,6 @@ mcf_docs_raw %>%
        y = " ", 
        caption = "Data Source: MCF documents dataset ver.1") +
   theme_bw(base_family = "HiraKakuProN-W6")
-```
-
-
-
-```{r}
-mcf_docs_raw %>% 
-  filter(str_detect(title, "总装备部"))
 ```
 
 ## Plot MCF by document type
@@ -90,7 +88,7 @@ mcf_docs_raw %>%
        caption = "Data Source: MCF Documents Dataset Ver. 1") +
   theme_classic() +
   theme(axis.text.y = element_text(family = "Songti TC"), 
-        plot.title = element_text(face = "bold", size = 15)) 
+        plot.title = element_text(family = "Times", face = "bold", size = 15)) 
   # theme_bw(base_family = "Songti TC") 
 ```
 
@@ -327,6 +325,8 @@ network_plot_1720 <- correlations_filtered_1720 %>%
 
 
 ```{r}
+pdf("mcf_Figure.pdf", width=9, height=8)
+
 network_1316 <- correlations_filtered_1316 %>% 
   filter(correlation > 0) %>% 
   graph_from_data_frame() %>% 
