@@ -260,7 +260,6 @@ datatidyr_3 %>% ggplot(weight = wcn2) +
                    axis.text.x=element_text(size=12),
                    axis.text.y=element_text(size=14),
                    strip.text=element_text(size=13))
-dev.off()
 ```
 
 
