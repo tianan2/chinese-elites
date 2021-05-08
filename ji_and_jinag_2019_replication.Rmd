@@ -525,7 +525,7 @@ theme_set(theme_bw() +
                   axis.text.y=element_text(size=12),
                   strip.text=element_text(size=13)))
 
-pdf("Figurea7.pdf",width=10, height=6)
+pdf("Figurea7.pdf",width = 10, height = 6)
 
 ggplot(data_10_tidied,aes(x=yrgroup, y=value,color=attribute,
                      group=attribute,shape=attribute))+
