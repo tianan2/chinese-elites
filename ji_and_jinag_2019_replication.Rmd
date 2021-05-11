@@ -2,7 +2,7 @@
 title: "Untitled"
 output: html_document
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 ```{r setup, include=FALSE}
@@ -525,32 +525,35 @@ theme_set(theme_bw() +
                   axis.text.y=element_text(size=12),
                   strip.text=element_text(size=13)))
 
-pdf("Figurea7.pdf",width = 10, height = 6)
-
-ggplot(data_10_tidied,aes(x=yrgroup, y=value,color=attribute,
-                     group=attribute,shape=attribute))+
-  geom_point(size=2)+
-  geom_line(aes(linetype=attribute))+
-  scale_color_brewer(palette="Set1",name = "",
-                     breaks=c("social", "political","intl","modern"),
-                     labels=c("Social",
-                              "Political",
-                              "International",
-                              "Overall modern value"))+
+ggplot(data_10_tidied,aes(x = yrgroup, 
+                          y = value, 
+                          group = attribute, 
+                          shape = attribute)) +
+  geom_point(size = 2) +
+  geom_line(aes(linetype = attribute)) +
   scale_linetype_manual(name = "",
-                        breaks=c("modern", "demo","intl","liberal"),
-                        labels=c("Social",
-                                 "Political",
-                                 "International",
-                                 "Overall modern value"),
-                        values=c("dashed","twodash","solid","dotted"))+
+                        breaks = c("social", 
+                                   "political", 
+                                   "intl", 
+                                   "modern"),
+                        labels = c("Social",
+                                   "Political",
+                                   "International",
+                                   "Overall modern value"),
+                        values = c("dashed",
+                                   "twodash",
+                                   "solid",
+                                   "dotted")) +
   scale_shape_manual(name = "",
-                     breaks=c("modern", "demo","intl","liberal"),
-                     labels=c("Social",
-                              "Political",
-                              "International",
-                              "Overall modern value"),
-                     values=c(19,17,18,15))+
+                     breaks = c("social", 
+                                "political",
+                                "intl",
+                                "modern"),
+                     labels = c("Social",
+                                "Political",
+                                "International",
+                                "Overall modern value"),
+                     values = c(19,17,18,15)) +
   xlab("Year Group")+ylab("")+
   theme(legend.text = element_text(size=11))+
   scale_x_discrete(limits=c("<1950","1950-1965","1966-1976",
@@ -559,3 +562,4 @@ ggplot(data_10_tidied,aes(x=yrgroup, y=value,color=attribute,
 
 ```
 
+```{r}
