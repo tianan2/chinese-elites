@@ -2,7 +2,7 @@
 title: "Untitled"
 output: html_document
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 ```{r setup, include=FALSE}
@@ -312,24 +312,45 @@ plot_grid(title_gg, gridded, ncol = 1, rel_heights = c(0.05, 1))
 mcf_docs_raw %>% 
   distinct(index, .keep_all = T) %>% 
   mutate(date_year = year(date), 
+         domain = fct_recode(domain, 
+                             "industry" = "产业", 
+                             "infrastucture" = "基础", 
+                             "science & technology" = "科技", 
+                             "education" = "教育资源", 
+                             "social service" = "社会服务"), 
          domain = fct_relevel(domain, 
-                              "基础", 
-                              "产业", 
-                              "科技",
-                              "教育资源")) %>% 
+                              "industry", 
+                              "infrastructure", 
+                              "science & technology",
+                              "education", 
+                              "social service")) %>% 
   filter(date_year < 2021) %>% 
   count(domain, date_year)  %>% 
   filter(domain != "原则") %>% 
   ggplot(aes(date_year, n, fill = domain)) +
   geom_col() + 
   scale_x_continuous(breaks = seq(2013, 2020, 1)) +
-  labs(title = "Figure 6. MCF policy documents by domain over time (2013-2020)", 
+  labs(title = "Figure 7. MCF policy documents by domain over time (2013-2020)", 
        x = " ",
        y = "Number of documents", 
        fill = " ", 
        caption = "Data Source: MCF Documents Dataset Ver.1") +
-  scale_fill_viridis(discrete = TRUE, option = "B") +
+  scale_fill_grey() +
+  #scale_fill_viridis(discrete = TRUE, option = "B") +
   theme_classic() +
-  theme(legend.text = element_text(family = "Songti TC"),
-        plot.title = element_text(face = "bold")) 
+  theme(legend.text = element_text(family = "Songti TC", size = 11),
+        legend.position = "bottom",
+        plot.title = element_text(face = "bold", size = 15)) 
 ```
+
+## What percentages of MCF document were jointly issued? 
+
+```{r}
+mcf_distinct <- mcf_docs_raw %>%
+  distinct(index, title, entity)
+
+mcf_docs_raw %>% anti_join(mcf_distinct, by = c("entity"))
+  
+  
+```
+
