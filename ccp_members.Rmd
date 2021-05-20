@@ -1,0 +1,124 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(scales)
+library(readxl)
+theme_set(theme_classic())
+
+ccp_members_raw <- read_excel("ccp_member.xlsx")
+```
+
+
+
+```{r}
+ccp_members_raw %>% 
+  pivot_longer(cols = c(applicant_number, entrant_number), 
+               names_to = "membership", 
+               values_to = "value") %>% 
+  ggplot(aes(as.character(year), value, fill = membership)) +
+  geom_col(position = "identity") + 
+  geom_text(aes(label = round(value / 100, digits = 1)), color = "white", position = position_stack(vjust = .6)) +
+  scale_fill_manual(values = c("midnightblue", "red"), 
+                    labels = c("applications for membership", "registered new members")) +
+  scale_x_discrete(limits = c("2019", "2018", "2017", "2016", "2015", "2014", "2013", "2012", "2011", "2009", "2007", "2005")) +
+  scale_y_continuous(limits = c(0, 2300), 
+                     breaks = seq(0, 2000, 500), 
+                     labels = c("0", "5", "10", "15", "20 million")) +
+  coord_flip() +
+  theme(legend.position = "bottom", 
+        legend.title = element_blank(), 
+        plot.title = element_text(face = "bold")) +
+  labs(title = "Recruitments of new members slow down after 2013", 
+       subtitle = "Applications for membership and admittance of new members (2005-2019)",
+       x = " ", 
+       y = " ", 
+       caption = "Source: CCP Organization Department")
+```
+
+
+
+```{r}
+library(facetscales)
+
+theme_set(theme_light())
+
+ccp_members_selected <- ccp_members_raw %>% 
+  mutate(ratio = total_member / total_population) %>% 
+  select(year, total_member, ratio) %>%
+  pivot_longer(-year, names_to = "category") %>% 
+  mutate(category = fct_relevel(category, "total_member", "ratio")) 
+
+ccp_members_selected %>% 
+  ggplot(aes(year, value, color = category)) +
+  geom_line() +
+  facet_wrap(~ category, nrow = 2, scales = "free_y") +
+  scale_x_continuous(limits = c(2005, 2019), 
+                      breaks = seq(2005, 2019, 2)) +
+  labs(title = "CCP membership increase and share of the population", 
+       x = " ")
+
+scales_y <- list(
+   "Total membership" = scale_y_continuous(limits = c(6000, 9500), 
+                                     breaks = seq(6000, 9000, 1000)),
+   "Ratio to population" = scale_y_continuous(limits = c(0.05, 0.08), 
+                              labels = percent_format())
+ )
+
+ccp_members_selected %>% 
+  mutate(category = fct_recode(category, 
+                               "Total membership" = "total_member", 
+                               "Ratio to population" = "ratio")) %>% 
+  ggplot(aes(year, value, color = category)) +
+  geom_point() +
+  geom_line(size = 1) +
+  facet_grid_sc(rows = vars(category), scales = list(y = scales_y)) +
+  scale_x_continuous(limits = c(2005, 2019), 
+                      breaks = seq(2005, 2019, 2)) +
+  scale_color_manual(values = c("midnightblue", "red")) +
+  labs(title = "CCP membership reaches 90 million",
+       subtitle = "Total number of party members and share of the population (2005-2019)", 
+       x = " ", 
+       y = " ", 
+       caption = "Source: CCP organization department") +
+  theme(legend.position = "none", 
+        plot.title = element_text(face = "bold"))
+
+```
+
+
+
+```{r}
+ccp_members_raw %>% 
+  select(year, total_member, female_member, college_member, worker_member, peasant_fisher_member, company_member, state_member, student_member) %>% 
+  filter(year > 2011) %>% 
+  mutate(female_ratio = female_member / total_member, 
+         college_ratio = college_member / total_member, 
+         worker_ratio = worker_member / total_member, 
+         peasant_fisher_ratio = peasant_fisher_member / total_member, 
+         company_ratio = company_member / total_member, 
+         state_ratio = state_member / total_member, 
+         student_ratio = student_member / total_member) %>% 
+  pivot_longer(cols = ends_with("ratio"), names_to = "category") %>%
+  mutate(category = fct_reorder(category, -value)) %>% 
+  ggplot(aes(year, value, color = category)) +
+  geom_point() +
+  geom_line(size = 1.2) +
+  scale_y_continuous(labels = percent_format()) +
+  facet_wrap(~ category, nrow = 1) +
+  labs(title = "CCP membership reaches 90 million",
+       subtitle = "Total number of party members and share of the population (2012-2019)", 
+       x = " ", 
+       y = " ", 
+       caption = "Source: CCP organization department") +
+  theme(legend.position = "none", 
+        plot.title = element_text(face = "bold"))
+```
+

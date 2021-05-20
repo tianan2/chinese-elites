@@ -1,0 +1,58 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r warning=FALSE, message=FALSE}
+library(tidyverse)
+library(readxl)
+library(scales)
+theme_set(theme_light())
+
+china_enterprises_raw <- read_excel("china_enterprises.xlsx")
+
+```
+
+
+
+
+```{r}
+theme_set(theme_classic())
+
+china_enterprises_raw %>% 
+  mutate(state_roa = state_total_profits / state_total_assets, 
+         private_roa = private_total_profits / private_total_assets) %>% 
+  select(year, state_roa, private_roa) %>% 
+  pivot_longer(cols = state_roa : private_roa, names_to = "category") %>% 
+  ggplot(aes(year, value, color = category)) +
+  geom_point(size = 2) +
+  geom_line(size = 1.2) +
+  scale_x_continuous(limits = c(1998, 2019), 
+                     breaks = seq(1998, 2019, 2)) +
+  scale_y_continuous(labels = percent_format(), 
+                     limits = c(0, .15)) +
+  labs(title = "Return on asset in both private and state-owned enterprises (1998-2019)", 
+       x = " ", 
+       y = " ", 
+       caption = "Data source: National Bureau of Statistics") +
+  theme(legend.position = "bottom", 
+        legend.title = element_blank())
+```
+
+
+
+```{r}
+china_enterprises_raw %>% 
+  mutate(state_asset_sec = state_current_assets / state_total_assets, 
+         private_asset_sec = private_current_assets / private_total_assets) %>% 
+  select(year, state_asset_sec, private_asset_sec) %>% 
+  pivot_longer(cols = state_asset_sec : private_asset_sec, names_to = "category") %>% 
+  ggplot(aes(year, value, color = category)) +
+  geom_point(size = 2) +
+  geom_line(size = 1.2)
+```
+

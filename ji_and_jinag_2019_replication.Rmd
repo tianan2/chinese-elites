@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(haven)
 library(readxl)
-theme_set(theme_light())
+theme_set(theme_classic())
 
 full_data <- read_dta("ji_and_jiang_2019/data.dta")
 read_dta("ji_and_jiang_2019/abs3_merge_party.dta")
@@ -438,7 +438,8 @@ data_6 %>%
 ```{r}
 data_7 <- read_excel("ji_and_jiang_2019/Fig.xlsx", sheet = 7)
 
-data_7_tidied <- data_7 %>% gather(census, value, "Population Census": "CCP Census")
+data_7_tidied <- data_7 %>% 
+  gather(census, value, "Population Census": "CCP Census")
 
 theme_set(theme_bw() + 
             theme(text = element_text(family="Times"),
@@ -452,16 +453,17 @@ theme_set(theme_bw() +
 
 pdf("Figurea3.pdf",width=6, height=8)
 
-ggplot(data_7_tidied, aes(x=att, y=value,fill=census))+
+data_7_tidied %>% 
+  pivot_wider(names_from = att, values_from = value)
+  filter(att %in% c("female", "18-30", "66-70", "71 and above", "some university and above", "minority")) %>% 
+  ggplot(aes(x=att, y=value,fill=census))+
   geom_bar(stat = "identity",position="dodge", 
            colour="black",alpha=0.5)+
   scale_fill_brewer(palette="Set1",name = "",
                     breaks=c("CCP Census", "Population Census"),
                     labels=c("CCP Census", "Population Census"))+
   scale_x_discrete(limits=c("minority","some university and above",
-                            "71 and above","66-70","61-65",
-                            "56-60","51-55","46-50","41-45",
-                            "36-40","31-35","18-30","female"))+
+                            "71 and above","66-70","18-30","female"))+
   xlab("Attribute")+ylab("Proportion")+
   coord_flip()
 
