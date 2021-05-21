@@ -78,7 +78,13 @@ china_enterprises_raw %>%
   ggplot(aes(year, value, color = category)) +
   geom_point(size = 2) +
   geom_line(size = 1.2) +
-  labs(title = "Employment in private and state enterprises (1998-2019)") +
+  scale_x_continuous(limits = c(1998, 2021)) +
+  scale_y_continuous(limits = c(0, 4000), 
+                     labels = comma) +
+  labs(title = "Employment in private and state enterprises (1998-2019)", 
+       caption = "Data Source: National Bureau of Statistics", 
+       x = " ", 
+       y = " ") +
   theme(legend.position = "bottom", 
         legend.title = element_blank(), 
         plot.title = element_text(face = "bold"))
