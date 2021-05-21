@@ -34,8 +34,6 @@ datatidyr <- data_1 %>% gather(attribute, value, CCP:age) %>%
                       labels=c("% CCP membership","% of female CCP member","% of college educated CCP member","% of CCP member at age<=35"))) %>% 
   mutate(survey1 = factor(survey, levels = c("ABS4(2015)", "ABS3(2011)", "CGSS2015", "CGSS2013","CGSS2012","CGSS2010","CFPS2014")))
 
-pdf("Figure1.pdf",width=10, height=4)
-
 datatidyr %>% 
   ggplot(aes(x = value, y = att, group = as.factor(group),
                      shape = as.factor(group), color = as.factor(group))) + 
@@ -122,7 +120,7 @@ dg_abs4 <- data.frame(values = unique(datatidyr_2$values),
                               "CCP:0.165\n[0.056,0.275]",
                               "CCP:0.458\n[0.368,0.549]"))
 
-pdf("Figure2.pdf",width=10, height=8)
+#pdf("Figure2.pdf",width=10, height=8)
 
 datatidyr_2 %>% 
   ggplot(weight = wcn2)+
@@ -130,7 +128,7 @@ datatidyr_2 %>%
                           x = value,color = paste(str_survey, party),    
                           fill = paste(str_survey, party),
                           linetype = paste(str_survey, party)),
-                      alpha = .001,na.rm = FALSE,scale = 0.95)+
+                      alpha = .001, na.rm = FALSE, scale = 0.95)+
   facet_grid(. ~ values)+
   scale_fill_cyclical(breaks = c("0", "1"),
                       labels = c("Public","CCP Member"),
@@ -159,17 +157,24 @@ datatidyr_2 %>%
   geom_text(data=dg_abs3,    mapping=aes(x=6,y=6.8,label=labels2,color="#e41a1c"),size=2.8,lineheight=0.8,hjust = 1)+
   geom_text(data=dg_abs4,    mapping=aes(x=6,y=7.5,label=labels1,color="#377eb8"),size=2.8,lineheight=0.8,hjust = 1)+
   geom_text(data=dg_abs4,    mapping=aes(x=6,y=7.8,label=labels2,color="#e41a1c"),size=2.8,lineheight=0.8,hjust = 1)+
-  theme_bw() + scale_x_continuous(expand=c(0.01,0))+
-  scale_y_discrete(expand=c(0.01,0),
-                   limits=c("CFPS2014","CGSS2010","CGSS2012",
-                            "CGSS2013","CGSS2015",
-                            "ABS3(2011)","ABS4(2015)"))+
-  theme(text=element_text(family="Times"),
-        legend.position="bottom",legend.direction="horizontal",
-        axis.title.x=element_text(face="bold",vjust=-.5),
-        axis.title.y=element_text(face="bold",vjust=1),
-        axis.text.x=element_text(size=12),
-        strip.text=element_text(size=13))
+  theme_bw() + 
+  scale_x_continuous(expand=c(0.01,0)) +
+  scale_y_discrete(expand = c(0.01,0),
+                   limits = c("CFPS2014",
+                              "CGSS2010",
+                              "CGSS2012",
+                              "CGSS2013",
+                              "CGSS2015",
+                              "ABS3(2011)",
+                              "ABS4(2015)")) + 
+  labs(caption = "Data Source: Ji and Jiang 2019") +
+  theme(text = element_text(family = "Times"),
+        legend.position = "bottom",
+        legend.direction = "horizontal",
+        axis.title.x = element_text(face = "bold", vjust = -.5),
+        axis.title.y = element_text(face = "bold", vjust = 1),
+        axis.text.x = element_text(size = 12),
+        strip.text = element_text(size = 13))
 ```
 
 
@@ -187,7 +192,7 @@ datatidyr_3 <- data_3 %>%
   mutate(values = factor(attribute, levels = c("social_value", "political_value", "intl_value", "modern_all_value"), 
                          labels = c("Social", "Political", "International", "Overall modern value")))
 
-pdf("Figure3.pdf",width=10, height=8)
+# pdf("Figure3.pdf",width=10, height=8)
 
 datatidyr_3 %>% ggplot(weight = wcn2) + 
   geom_density_ridges(aes(y = values, 
@@ -454,7 +459,12 @@ theme_set(theme_bw() +
 pdf("Figurea3.pdf",width=6, height=8)
 
 data_7_tidied %>% 
-  pivot_wider(names_from = att, values_from = value)
+  janitor::clean_names() %>% 
+  mutate(pc = as.numeric(pc), 
+         ccpc = as.numeric(ccpc)) %>% 
+  pivot_wider(names_from = att, 
+              values_from = c(pc, ccpc), 
+              values_fill = 0)
   filter(att %in% c("female", "18-30", "66-70", "71 and above", "some university and above", "minority")) %>% 
   ggplot(aes(x=att, y=value,fill=census))+
   geom_bar(stat = "identity",position="dodge", 
@@ -564,4 +574,3 @@ ggplot(data_10_tidied,aes(x = yrgroup,
 
 ```
 
-```{r}

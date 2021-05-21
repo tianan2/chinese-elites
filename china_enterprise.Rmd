@@ -11,12 +11,10 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(readxl)
 library(scales)
-theme_set(theme_light())
 
 china_enterprises_raw <- read_excel("china_enterprises.xlsx")
 
 ```
-
 
 
 
@@ -35,12 +33,13 @@ china_enterprises_raw %>%
                      breaks = seq(1998, 2019, 2)) +
   scale_y_continuous(labels = percent_format(), 
                      limits = c(0, .15)) +
-  labs(title = "Return on asset in both private and state-owned enterprises (1998-2019)", 
+  labs(title = "Return on asset in private and state-owned enterprises (1998-2019)", 
        x = " ", 
        y = " ", 
        caption = "Data source: National Bureau of Statistics") +
   theme(legend.position = "bottom", 
-        legend.title = element_blank())
+        legend.title = element_blank(), 
+        plot.title = element_text(face = "bold"))
 ```
 
 
@@ -54,5 +53,34 @@ china_enterprises_raw %>%
   ggplot(aes(year, value, color = category)) +
   geom_point(size = 2) +
   geom_line(size = 1.2)
+```
+
+
+
+```{r}
+china_enterprises_raw %>% 
+  select(year, state_number, private_number) %>% 
+  pivot_longer(cols = state_number : private_number, names_to = "category") %>% 
+  ggplot(aes(year, value, color = category)) +
+  geom_point(size = 2) +
+  geom_line(size = 1.2) +
+  scale_y_continuous(labels = comma)
+```
+
+
+
+```{r}
+china_enterprises_raw %>% 
+  select(year, state_employment, private_employment) %>% 
+  pivot_longer(cols = state_employment : private_employment, names_to = "category") %>% 
+  mutate(category = fct_recode(category, "Private enterprises" = "private_employment", 
+                               "State-owned enterprises" = "state_employment")) %>% 
+  ggplot(aes(year, value, color = category)) +
+  geom_point(size = 2) +
+  geom_line(size = 1.2) +
+  labs(title = "Employment in private and state enterprises (1998-2019)") +
+  theme(legend.position = "bottom", 
+        legend.title = element_blank(), 
+        plot.title = element_text(face = "bold"))
 ```
 
