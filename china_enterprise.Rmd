@@ -32,7 +32,7 @@ china_enterprises_raw %>%
                      breaks = seq(1998, 2019, 2)) +
   scale_y_continuous(labels = percent_format(), 
                      limits = c(0, .15)) +
-  labs(title = "Private sector is more profitable but the advantage is weakning", 
+  labs(title = "Private sector is more profitable but the performance is weakning", 
        subtitle = "Return on asset in private and state-owned enterprises (1998-2019)",
        x = " ", 
        y = " ", 
