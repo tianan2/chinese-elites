@@ -24,6 +24,11 @@ mcf_docs_raw <- read_excel("MCF_docs.xlsx") %>%
   mutate(date_year = year(date)) %>%
   mutate(entity = str_trim(entity)) %>% 
   mutate(entity_rank = as.character(entity_rank))
+
+mcf_0213_raw <- read_excel("MCF_docs.xlsx", sheet = 3) %>% 
+  mutate(date = ymd(date)) %>% 
+  mutate(date_year = year(date)) %>%
+  mutate(entity = str_trim(entity))
 ```
 
 ## MC by number over time 
@@ -343,14 +348,26 @@ mcf_docs_raw %>%
         plot.title = element_text(face = "bold", size = 15)) 
 ```
 
-## What percentages of MCF document were jointly issued? 
+## MCF documents before 2013
 
 ```{r}
-mcf_distinct <- mcf_docs_raw %>%
-  distinct(index, title, entity)
+mcf_before_2013 <- mcf_0213_raw %>% 
+  distinct(index, .keep_all = TRUE) %>% 
+  filter(date_year < 2013) %>% 
+  select(title, entity, date, type, date_year)
 
-mcf_docs_raw %>% anti_join(mcf_distinct, by = c("entity"))
-  
-  
+mcf_after_2013 <- mcf_docs_raw %>% 
+  distinct(index, .keep_all = TRUE) %>%
+  filter(date_year < 2021) %>% 
+  select(title, entity, date, type, date_year)
+
+mcf_0220_selected <- bind_rows(mcf_before_2013, mcf_after_2013)
+
+mcf_0220_selected %>% 
+  count(date_year) %>% 
+  ggplot(aes(date_year, n)) +
+  geom_point() +
+  geom_line()
 ```
+
 
