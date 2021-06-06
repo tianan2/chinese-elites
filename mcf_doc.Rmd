@@ -353,7 +353,8 @@ mcf_docs_raw %>%
 ```{r}
 mcf_before_2013 <- mcf_0213_raw %>% 
   distinct(index, .keep_all = TRUE) %>% 
-  filter(date_year < 2013) %>% 
+  filter(date_year < 2013, 
+         date_year > 2002) %>% 
   select(title, entity, date, type, date_year)
 
 mcf_after_2013 <- mcf_docs_raw %>% 
@@ -366,8 +367,18 @@ mcf_0220_selected <- bind_rows(mcf_before_2013, mcf_after_2013)
 mcf_0220_selected %>% 
   count(date_year) %>% 
   ggplot(aes(date_year, n)) +
-  geom_point() +
-  geom_line()
+  geom_point(size = 2) +
+  geom_line(size = 1) + 
+  # geom_vline(xintercept = 2017) +
+  scale_x_continuous(breaks = seq(2002, 2020, 1)) +
+  scale_y_continuous(breaks = seq(0, 40, 5)) +
+  labs(title = "Figure 2. Number of Policy Documents relating to MCF over time (2003-2020)", 
+       x = " ", 
+       y = " ", 
+       caption = "Data Source: MCF documents dataset ver.1") +
+  theme_classic() +
+  theme(plot.title = element_text(family = "Times", face = "bold", size = 14))
+ggsave(filename = "mcf-presentation/fig-2_number_of_policy_documents_over_time.pdf", width = 8, height = 5)
 ```
 
 
