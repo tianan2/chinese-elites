@@ -2,7 +2,7 @@
 title: "Untitled"
 output: html_document
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -51,7 +51,6 @@ mcf_docs_raw %>%
   theme_classic() +
   theme(plot.title = element_text(family = "Times", face = "bold", size = 15))
 
-
 # Japanese
 mcf_docs_raw %>% 
   distinct(index, .keep_all = T) %>% 
@@ -62,11 +61,11 @@ mcf_docs_raw %>%
   # geom_vline(xintercept = 2017) +
   scale_x_continuous(breaks = seq(2013, 2020, 1)) +
   scale_y_continuous(breaks = seq(0, 40, 5)) +
-  labs(title = "図1. 軍民融合関連政策文書の各年度集計 (2013-2020)", 
+  labs(title = "図2. 「軍民融合」に関する政策文書の公布件数の推移 (2013-2020)", 
        x = " ", 
        y = " ", 
        caption = "Data Source: MCF documents dataset ver.1") +
-  theme_bw(base_family = "HiraKakuProN-W6")
+  theme_classic(base_family = "HiraKakuProN-W6")
 ```
 
 ## Plot MCF by document type for the entire period (without issuing authority)
@@ -85,8 +84,35 @@ mcf_docs_raw %>%
        caption = "Data Source: MCF Documents Dataset Ver. 1") +
   theme_classic() +
   theme(axis.text.y = element_text(family = "Songti TC"), 
-        plot.title = element_text(family = "Times", face = "bold", size = 15)) 
-  # theme_bw(base_family = "Songti TC") 
+        plot.title = element_text(family = "Times", face = "bold", size = 15))
+
+# Japanese
+mcf_docs_raw %>% 
+  distinct(index, .keep_all = TRUE) %>% 
+  count(type, sort = T) %>% 
+  mutate(type = fct_recode(type, 
+                           "意見" = "意见", 
+                           "目録" = "目录", 
+                           "弁法" = "办法", 
+                           "規画" = "规划", 
+                           "計画" = "计划", 
+                           "暫定弁法" = "暂行办法", 
+                           "規則" = "规则",
+                           "規定" = "规定", 
+                           "細則" = "细则", 
+                           "挙措" = "举措", 
+                           "規範体系" = "规范体系", 
+                           "綱要" = "纲要", 
+                           "大綱" = "大纲"),
+         type = fct_reorder(type, n)) %>% 
+  ggplot(aes(n, type)) +
+  geom_col() +
+  labs(title = "図6. 「軍民融合」に関する政策文書の種類別件数 (2013-2020)", 
+       y = " ",
+       x = "公布文書の件数", 
+       fill = " ", 
+       caption = "Data Source: MCF Documents Dataset Ver. 1") +
+  theme_classic(base_family = "HiraKakuProN-W6")
 ```
 
 ## Plot MCF by document type (with issuing authority)
@@ -97,23 +123,72 @@ mcf_docs_raw %>%
   mutate(entity_rank = fct_recode(entity_rank, 
                                   "core leaders" = "1", 
                                   "staff & leadership groups" = "2", 
-                                  "commissions & super-ministries" = "3", 
+                                  "commissions & super ministries" = "3", 
                                   "line ministries" = "4", 
-                                  "ministrerial bureaus" = "5")) %>% 
-  mutate(type = fct_reorder(type, n, sum)) %>% 
+                                  "ministerial bureaus" = "5")) %>% 
+  mutate(type = fct_recode(type, 
+                           "意見" = "意见", 
+                           "目録" = "目录", 
+                           "弁法" = "办法", 
+                           "規画" = "规划", 
+                           "計画" = "计划", 
+                           "暫定弁法" = "暂行办法", 
+                           "規則" = "规则",
+                           "規定" = "规定", 
+                           "細則" = "细则", 
+                           "挙措" = "举措", 
+                           "規範体系" = "规范体系", 
+                           "綱要" = "纲要", 
+                           "大綱" = "大纲"), 
+         type = fct_reorder(type, n, sum)) %>% 
   ggplot(aes(n, type, fill = entity_rank)) +
   geom_col() +
-  labs(title = "Figure 6. MCF policy documents by type (2013-2020)", 
-       y = " ",
-       x = "Number of documents", 
+  labs(title = "Figure 5. MCF policy documents by type (2013-2020)", 
+       y = "",
+       x = "Number of Documents", 
        fill = " ", 
        caption = "Data Source: MCF Documents Dataset Ver. 1") +
-  scale_fill_viridis(discrete = TRUE, option = "B") +
-  theme_classic() +
-  theme(axis.text.y = element_text(family = "Songti TC"), 
-        plot.title = element_text(face = "bold", size = 15), 
+  scale_fill_viridis(discrete = TRUE, option = "B") + 
+  theme_classic(base_family = "HiraKakuProN-W6") +
+  theme(plot.title = element_text(face = "bold", size = 12), 
         legend.position = "bottom")
-  # theme_bw(base_family = "Songti TC") 
+
+# Japanese
+mcf_docs_raw %>% 
+  count(type, entity_rank) %>% 
+  mutate(entity_rank = fct_recode(entity_rank, 
+                                  "党指導部" = "1", 
+                                  "党中央機構・領導小組" = "2", 
+                                  "政府委員会・統括省（部）" = "3", 
+                                  "管轄省（部）" = "4", 
+                                  "管轄庁（局）" = "5")) %>% 
+  mutate(type = fct_recode(type, 
+                           "意見" = "意见", 
+                           "目録" = "目录", 
+                           "弁法" = "办法", 
+                           "規画" = "规划", 
+                           "計画" = "计划", 
+                           "暫定弁法" = "暂行办法", 
+                           "規則" = "规则",
+                           "規定" = "规定", 
+                           "細則" = "细则", 
+                           "挙措" = "举措", 
+                           "規範体系" = "规范体系", 
+                           "綱要" = "纲要", 
+                           "大綱" = "大纲"), 
+         type = fct_reorder(type, n, sum)) %>% 
+  ggplot(aes(n, type, fill = entity_rank)) +
+  geom_col() +
+  labs(title = "図6. 「軍民融合」に関する政策文書の種類別件数 (2013-2020)", 
+       y = "",
+       x = "公布文書の件数", 
+       fill = " ", 
+       caption = "Data Source: MCF Documents Dataset Ver. 1") +
+  scale_fill_viridis(discrete = TRUE, option = "B") + 
+  theme_classic(base_family = "HiraKakuProN-W6") +
+  theme(plot.title = element_text(face = "bold", size = 12), 
+        legend.position = "bottom")
+  # theme_bw(base_family = "Songti TC")
   
 ```
 
@@ -161,7 +236,6 @@ mcf_docs_raw %>%
 ## MCF by issuing entity over time 
 
 ```{r}
-
 # Plot MCF documents by entity over time
 mcf_docs_raw %>% 
   distinct(index, .keep_all = T) %>% 
@@ -186,6 +260,39 @@ mcf_docs_raw %>%
   theme_classic() +
   theme(legend.text = element_text(family = "Songti TC"),
         plot.title = element_text(face = "bold")) 
+
+# Japanese
+mcf_docs_raw %>% 
+  distinct(index, .keep_all = T) %>% 
+  mutate(entity = fct_lump(entity, 6),
+         entity = fct_recode(entity, 
+                             "中央軍民融合発展委員会" = "中央军民融合发展委员会", 
+                             "国務院" = "国务院",
+                             "財政部" = "财政部", 
+                             "工業情報化省" = "工业和信息化部", 
+                             "国防科技工業局" = "国防科技工业局", 
+                             "中央軍委装備発展部" = "中央军委装备发展部", 
+                             "その他" = "Other"), 
+         entity = fct_relevel(entity, 
+                              "中央軍民融合発展委員会", 
+                              "国務院", 
+                              "財政部", 
+                              "工業情報化省", 
+                              "国防科技工業局")) %>%
+  filter(date_year < 2021) %>% 
+  count(date_year, entity) %>% 
+  ggplot(aes(date_year, n, fill = entity)) +
+  geom_col() + 
+  scale_x_continuous(breaks = seq(2013, 2020, 1)) +
+  labs(title = "図3. 公布機関別に見た「軍民融合」に関する政策文書の件数推移 (2013-2020)", 
+       x = " ",
+       y = "文書の件数", 
+       fill = " ", 
+       caption = "Data Source: MCF Documents Dataset Ver.1") +
+  scale_fill_viridis(discrete = TRUE, option = "B") +
+  theme_classic(base_family = "HiraKakuProN-W6") +
+  theme(plot.title = element_text(face = "bold"), 
+        legend.position = "bottom") 
 ```
 
 
@@ -298,10 +405,24 @@ network_plot_1316 <- correlations_1316 %>%
   labs(title = "Figure 4. Central MCF policy network between 2013 and 2016") +
   theme(legend.position = "bottom") 
 
+# Japanese
+correlations_1316 %>% 
+  network_plot() +
+  labs(title = "図4. 中央における「軍民融合」政策ネットワーク（2013-2016)") +
+  theme(plot.title = element_text(family = "HiraKakuProN-W6", size = 12), 
+        legend.position = "none") 
+
 network_plot_1720 <- correlations_1720 %>% 
   network_plot() + 
   labs(title = "Figure 5. Central MCF policy network between 2017 and 2020") +
   theme(legend.position = "bottom")
+
+# Japanese
+correlations_1720 %>% 
+  network_plot() +
+  labs(title = "図5. 中央における「軍民融合」政策ネットワーク（2017-2020)") +
+  theme(plot.title = element_text(family = "HiraKakuProN-W6", size = 12), 
+        legend.position = "none") 
 
 title_gg <- ggdraw() + draw_label("Figure 4. The structure of MCF policy network (before and after 2017)", 
              size = 15, fontface = "bold", hjust = .51)
@@ -346,6 +467,39 @@ mcf_docs_raw %>%
   theme(legend.text = element_text(family = "Songti TC", size = 11),
         legend.position = "bottom",
         plot.title = element_text(face = "bold", size = 15)) 
+
+# Japanese
+mcf_docs_raw %>% 
+  distinct(index, .keep_all = T) %>% 
+  mutate(date_year = year(date), 
+         domain = fct_recode(domain, 
+                             "産業" = "产业", 
+                             "基礎" = "基础", 
+                             "科学技術" = "科技", 
+                             "教育" = "教育资源", 
+                             "社会サービス" = "社会服务"), 
+         domain = fct_relevel(domain, 
+                              "産業", 
+                              "基礎", 
+                              "科学技術",
+                              "教育", 
+                              "社会サービス")) %>% 
+  filter(date_year < 2021) %>% 
+  count(domain, date_year)  %>% 
+  filter(domain != "原则") %>% 
+  ggplot(aes(date_year, n, fill = domain)) +
+  geom_col() + 
+  scale_x_continuous(breaks = seq(2013, 2020, 1)) +
+  labs(title = "図7. 領域別に見た「軍民融合」政策文書の件数推移 (2013-2020)", 
+       x = " ",
+       y = "文書の件数", 
+       fill = " ", 
+       caption = "Data Source: MCF Documents Dataset Ver.1") +
+  scale_fill_grey() +
+  #scale_fill_viridis(discrete = TRUE, option = "B") +
+  theme_classic(base_family = "HiraKakuProN-W6") +
+  theme(legend.position = "bottom",
+        plot.title = element_text(face = "bold")) 
 ```
 
 ## MCF documents before 2013

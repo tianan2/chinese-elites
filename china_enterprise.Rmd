@@ -1,6 +1,8 @@
 ---
 title: "Untitled"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -32,7 +34,7 @@ china_enterprises_raw %>%
                      breaks = seq(1998, 2019, 2)) +
   scale_y_continuous(labels = percent_format(), 
                      limits = c(0, .15)) +
-  labs(title = "Private sector is more profitable but the performance is weakning", 
+  labs(title = "Private sector is still more profitable but the performance is weakning", 
        subtitle = "Return on asset in private and state-owned enterprises (1998-2019)",
        x = " ", 
        y = " ", 
@@ -41,6 +43,7 @@ china_enterprises_raw %>%
         legend.position = "bottom", 
         legend.title = element_blank(), 
         plot.title = element_text(face = "bold"))
+ggsave(filename = "figs_china_enterprises/private_sector_is_still_more_profitable.pdf", width = 8, height = 5)
 ```
 
 
@@ -57,7 +60,7 @@ china_enterprises_raw %>%
   scale_x_continuous(limits = c(1998, 2021)) +
   scale_y_continuous(limits = c(.25, .65), 
                      labels = percent_format()) +
-  labs(title = "Asset securitization of SOEs has been slow", 
+  labs(title = "Asset securitization of SOEs has been slow (again)", 
        subtitle = "The ratio of current to total asset in private and state-owned sectors (1998-2019)", 
        x = " ", 
        y = " ", 
@@ -66,6 +69,7 @@ china_enterprises_raw %>%
         legend.position = "bottom", 
         legend.title = element_blank(),
         plot.title = element_text(face = "bold"))
+ggsave(filename = "figs_china_enterprises/asset-securitization-of-soes-has-been-slow.pdf", width = 8, height = 5)
 ```
 
 
@@ -90,6 +94,7 @@ china_enterprises_raw %>%
         legend.position = "bottom", 
         legend.title = element_blank(),
         plot.title = element_text(face = "bold"))
+ggsave(filename = "private_enterprises_increase_gain.pdf", width = 8, height = 5)
 ```
 
 
@@ -115,5 +120,6 @@ china_enterprises_raw %>%
         legend.position = "bottom", 
         legend.title = element_blank(), 
         plot.title = element_text(face = "bold"))
+ggsave(filename = "private_sector_employs_more.pdf", width = 8, height = 5)
 ```
 
