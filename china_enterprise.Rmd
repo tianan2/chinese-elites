@@ -22,6 +22,30 @@ china_enterprises_raw <- read_excel("china_enterprises.xlsx")
 
 
 ```{r}
+library(ggthemes)
+
+china_enterprises_raw %>% 
+  mutate(state_roa = state_total_profits / state_total_assets, 
+         private_roa = private_total_profits / private_total_assets) %>% 
+  select(year, state_roa, private_roa) %>% 
+  pivot_longer(cols = state_roa : private_roa, names_to = "category") %>% 
+  ggplot(aes(year, value, color = category)) +
+  geom_point(size = 2) +
+  geom_line(size = 1.2) +
+  scale_x_continuous(limits = c(1998, 2019), 
+                     breaks = seq(1998, 2019, 2)) +
+  scale_y_continuous(labels = percent_format(), 
+                     limits = c(0, .15)) +
+  scale_color_discrete(labels = c("Private", "State")) +
+  labs(title = "Private sector is still more profitable but performance is declining",
+       subtitle = "Return on asset in private and state-owned enterprises (1998-2019)",
+       color = NULL, 
+       x = " ", 
+       y = " ", 
+       caption = "Data source: National Bureau of Statistics") +
+  theme_economist()
+
+
 china_enterprises_raw %>% 
   mutate(state_roa = state_total_profits / state_total_assets, 
          private_roa = private_total_profits / private_total_assets) %>% 
